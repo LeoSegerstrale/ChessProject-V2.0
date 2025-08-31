@@ -1,0 +1,51 @@
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #ffffff; 
+  margin: 0;
+}
+
+#board {
+  display: grid;
+  grid-template-columns: repeat(8, 80px);
+  grid-template-rows: repeat(8, 80px);
+  border: 4px solid #333;
+}
+
+.light {
+  background-color: #f5f5dc ;  /* light square */
+}
+
+.dark {
+  background-color: #6b8e23;  /* dark square */
+}
+
+.white-piece {
+  color: #fffaf0;      /* the piece color */
+  font-size: 80px;    /* adjust size to fit square */
+  display: block;     /* makes it easier to center */
+  text-align: center; /* center in square */
+  line-height: 80px;  /* same as square height for vertical centering */
+
+  text-shadow: 
+     2px 2px 0 #000,  /* bottom-right shadow */
+    -2px -2px 0 #000, /* top-left shadow */
+     2px -2px 0 #000,  /* top-right shadow */
+    -2px 2px 0 #000;   /* bottom-left shadow */
+}
+
+
+.black-piece {
+  color: #1a1a1a;
+  font-size: 80px;
+  display: block;
+  text-align: center;
+  line-height: 80px;
+  
+}
+
+.square.selected {
+    outline: 3px solid yellow;
+}
