@@ -1,6 +1,5 @@
 const board = document.getElementById("board")
 console.log(board)
-const alphabet = "abcdefgh"
 
 let selectedPiece = null;
 let selectedSquare = null;
@@ -72,13 +71,13 @@ for (let row = 0; row < 8; row++) {
         square.addEventListener("click", () => {
             const pieceInSquare = square.querySelector("span");
 
-            // --- CASE 1: selecting a piece ---
+
             if (!selectedPiece && pieceInSquare) {
                 selectedPiece = pieceInSquare;
                 selectedSquare = square;
                 square.classList.add("selected");
 
-                // Call backend to get valid moves
+
                 const boardState = getBoardState();
                 const fromSquare = selectedSquare.getAttribute("data-square");
 
@@ -95,7 +94,18 @@ for (let row = 0; row < 8; row++) {
                 .then(res => res.json())
                 .then(data => {
                     console.log(data.validSquares);
-                    // TODO: highlight squares here
+                    clearHighlights();
+
+                    data.validSquares.forEach(coords => {
+                        const square = board.querySelector(`[data-square='${coords}']`);
+                        if (square) {
+                            console.log("Found square:", coords, square);
+                            square.classList.add("highlight");
+                        } else {
+                            console.warn("Square not found:", coords);
+                        }
+
+                    });
                 })
                 .catch(err => console.error(err));
 
@@ -104,6 +114,7 @@ for (let row = 0; row < 8; row++) {
 
             // --- CASE 2: clicked the same piece again to deselect ---
             if (square === selectedSquare) {
+                clearHighlights();
                 selectedSquare.classList.remove("selected");
                 selectedPiece = null;
                 selectedSquare = null;
@@ -112,6 +123,7 @@ for (let row = 0; row < 8; row++) {
 
             // --- CASE 3: moving the selected piece to a new square ---
             if (selectedPiece) {
+                clearHighlights();
                 // Remove piece from old square
                 selectedSquare.removeChild(selectedPiece);
 
@@ -136,6 +148,13 @@ for (let row = 0; row < 8; row++) {
         board.appendChild(square);
 
      }
+}
+
+
+function clearHighlights() {
+    document.querySelectorAll(".highlight").forEach(square => {
+        square.classList.remove("highlight");
+    });
 }
 
 

@@ -49,3 +49,8 @@ body {
 .square.selected {
     outline: 3px solid yellow;
 }
+
+.highlight {
+    outline: 2px solid #f80000;
+
+}
