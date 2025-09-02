@@ -117,6 +117,43 @@ func TestKnightMover(t *testing.T) {
 	}
 }
 
+func TestKingMover(t *testing.T) {
+	tests := []struct {
+		name     string
+		location string
+		board    [][]*model.Piece
+		want     []string
+	}{
+		{
+			name:     "Empty board center",
+			location: "34",
+			board:    emptyBoard(),
+			want:     []string{"23", "43", "25", "45", "24", "44", "35", "33"},
+		},
+		{
+			name:     "Blocked by same color",
+			location: "34",
+			board:    boardWithFBlockers(),
+			want:     []string{},
+		},
+		{
+			name:     "Partially blocked by opposite colour",
+			location: "34",
+			board:    boardWithPBlockers(),
+			want:     []string{"23", "43", "25", "45", "24", "44", "35", "33"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := KingMover(tt.location, tt.board)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 //HELPER FUNCTIONS
 
 func emptyBoard() [][]*model.Piece {

@@ -78,12 +78,12 @@ for (let row = 0; row < 8; row++) {
                 square.classList.add("selected");
 
 
-                const boardState = getBoardState();
+                const board = getBoard();
                 const fromSquare = selectedSquare.getAttribute("data-square");
 
                 const requestBody = {
                     from: fromSquare,
-                    board: boardState
+                    board: board
                 };
 
                 fetch("http://localhost:8080/vMoveCheck", {
@@ -159,7 +159,7 @@ function clearHighlights() {
 
 
 
-function getBoardState() {
+function getBoard() {
     const state = [];
 
     const pieceMap = {

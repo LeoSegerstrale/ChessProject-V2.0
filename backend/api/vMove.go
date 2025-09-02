@@ -4,7 +4,6 @@ import (
 	"ChessWeb/backend/model"
 	"ChessWeb/backend/service"
 	"encoding/json"
-	"log"
 	"net/http"
 )
 
@@ -18,9 +17,6 @@ func VMoveCheck(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
-
-	log.Printf("From: %s\n", req.From)
-	log.Printf("Board: %+v\n", req.Board)
 
 	moves := service.GetValidMoves(req)
 
