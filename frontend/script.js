@@ -78,12 +78,12 @@ for (let row = 0; row < 8; row++) {
                 square.classList.add("selected");
 
 
-                const board = getBoard();
+                const boardState = getBoard();
                 const fromSquare = selectedSquare.getAttribute("data-square");
 
                 const requestBody = {
                     from: fromSquare,
-                    board: board
+                    board: boardState,
                 };
 
                 fetch("http://localhost:8080/vMoveCheck", {
@@ -97,19 +97,18 @@ for (let row = 0; row < 8; row++) {
                     clearHighlights();
 
                     data.validSquares.forEach(coords => {
-                        const square = board.querySelector(`[data-square='${coords}']`);
-                        if (square) {
-                            console.log("Found square:", coords, square);
-                            square.classList.add("highlight");
+                        const squareEl = board.querySelector(`[data-square='${coords}']`);
+                        if (squareEl) {
+                            console.log("Found square:", coords, squareEl);
+                            squareEl.classList.add("highlight");
                         } else {
                             console.warn("Square not found:", coords);
                         }
-
                     });
                 })
                 .catch(err => console.error(err));
 
-                return; // done with this click
+                return;
             }
 
             // --- CASE 2: clicked the same piece again to deselect ---
@@ -186,7 +185,7 @@ function getBoard() {
             const piece = square.querySelector("span");
             if (piece) {
                 state[row][col] = {
-                    piece: pieceMap[piece.innerText],      // or a type like 'bishop', 'pawn'
+                    piece: pieceMap[piece.innerText],
                     colour: piece.classList.contains("white-piece") ? "white" : "black"
                 };
             }
