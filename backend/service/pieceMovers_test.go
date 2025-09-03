@@ -7,6 +7,7 @@ import (
 )
 
 func TestBishopMover(t *testing.T) {
+	ogLoc := []int{3, 4}
 	tests := []struct {
 		name     string
 		location string
@@ -16,7 +17,7 @@ func TestBishopMover(t *testing.T) {
 		{
 			name:     "Empty board center",
 			location: "34",
-			board:    emptyBoard(),
+			board:    emptyBoard(ogLoc),
 			want:     []string{"23", "12", "01", "43", "52", "61", "70", "25", "16", "07", "45", "56", "67"},
 		},
 		{
@@ -44,6 +45,7 @@ func TestBishopMover(t *testing.T) {
 }
 
 func TestRookMover(t *testing.T) {
+	ogLoc := []int{3, 4}
 	tests := []struct {
 		name     string
 		location string
@@ -53,7 +55,7 @@ func TestRookMover(t *testing.T) {
 		{
 			name:     "Empty board center",
 			location: "34",
-			board:    emptyBoard(),
+			board:    emptyBoard(ogLoc),
 			want:     []string{"24", "14", "04", "44", "54", "64", "74", "35", "36", "37", "33", "32", "31", "30"},
 		},
 		{
@@ -81,6 +83,7 @@ func TestRookMover(t *testing.T) {
 }
 
 func TestKnightMover(t *testing.T) {
+	ogLoc := []int{3, 4}
 	tests := []struct {
 		name     string
 		location string
@@ -90,7 +93,7 @@ func TestKnightMover(t *testing.T) {
 		{
 			name:     "Empty board center",
 			location: "34",
-			board:    emptyBoard(),
+			board:    emptyBoard(ogLoc),
 			want:     []string{"55", "53", "46", "42", "15", "13", "26", "22"},
 		},
 		{
@@ -118,6 +121,8 @@ func TestKnightMover(t *testing.T) {
 }
 
 func TestKingMover(t *testing.T) {
+	ogLoc := []int{3, 4}
+
 	tests := []struct {
 		name     string
 		location string
@@ -127,7 +132,7 @@ func TestKingMover(t *testing.T) {
 		{
 			name:     "Empty board center",
 			location: "34",
-			board:    emptyBoard(),
+			board:    emptyBoard(ogLoc),
 			want:     []string{"23", "43", "25", "45", "24", "44", "35", "33"},
 		},
 		{
@@ -154,14 +159,51 @@ func TestKingMover(t *testing.T) {
 	}
 }
 
+func TestPawnMover(t *testing.T) {
+	ogLoc := []int{6, 0}
+	tests := []struct {
+		name     string
+		location string
+		board    [][]*model.Piece
+		want     []string
+	}{
+		{
+			name:     "pawn in second rank can jump two or one square",
+			location: "60",
+			board:    emptyBoard(ogLoc),
+			want:     []string{"50", "40"},
+		},
+		{
+			name:     "Pawn with blockers either side can take",
+			location: "34",
+			board:    boardWithPBlockers(),
+			want:     []string{"23", "25"},
+		},
+		{
+			name:     "Pawn with no available squares has no available squares",
+			location: "34",
+			board:    boardWithFBlockers(),
+			want:     []string{},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := PawnMover(tt.location, tt.board)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 //HELPER FUNCTIONS
 
-func emptyBoard() [][]*model.Piece {
+func emptyBoard(pPos []int) [][]*model.Piece {
 	board := make([][]*model.Piece, 8)
 	for i := range board {
 		board[i] = make([]*model.Piece, 8)
 	}
-	board[3][4] = &model.Piece{
+	board[pPos[0]][pPos[1]] = &model.Piece{
 		Piece:  "",
 		Colour: "white",
 	}

@@ -180,3 +180,68 @@ func KingMover(location string, board [][]*model.Piece) []string {
 
 	return possibleMoves
 }
+
+func PawnMover(location string, board [][]*model.Piece) []string {
+	currY := int(location[0] - '0')
+	currX := int(location[1] - '0')
+
+	var newY int
+	var newX int
+
+	blackTrue := board[currY][currX].Colour == "black"
+	var oppColour string
+
+	possibleMoves := []string{}
+
+	var direction int
+
+	if blackTrue {
+		direction = 1
+		oppColour = "white"
+
+	} else {
+		direction = -1
+		oppColour = "black"
+	}
+
+	sUp := []int{1 * direction, 0}
+	dUp := []int{2 * direction, 0}
+
+	lTake := []int{1 * direction, -1}
+	rTake := []int{1 * direction, 1}
+
+	if board[currY+sUp[0]][currX] == nil {
+		newY = currY + sUp[0]
+		newX = currX + sUp[1]
+
+		newPos := strconv.Itoa(newY) + strconv.Itoa(newX)
+		possibleMoves = append(possibleMoves, newPos)
+
+		if (currY == 1 && blackTrue || currY == 6 && !blackTrue) && board[currY+dUp[0]][currX+dUp[1]] == nil {
+			newY = currY + dUp[0]
+			newX = currX + dUp[1]
+
+			newPos := strconv.Itoa(newY) + strconv.Itoa(newX)
+			possibleMoves = append(possibleMoves, newPos)
+		}
+
+	}
+
+	if currX != 0 && board[currY+lTake[0]][currX+lTake[1]] != nil && board[currY+lTake[0]][currX+lTake[1]].Colour == oppColour {
+		newY = currY + lTake[0]
+		newX = currX + lTake[1]
+
+		newPos := strconv.Itoa(newY) + strconv.Itoa(newX)
+		possibleMoves = append(possibleMoves, newPos)
+	}
+	if currX != 7 && board[currY+rTake[0]][currX+rTake[1]] != nil && board[currY+rTake[0]][currX+rTake[1]].Colour == oppColour {
+		newY = currY + rTake[0]
+		newX = currX + rTake[1]
+
+		newPos := strconv.Itoa(newY) + strconv.Itoa(newX)
+		possibleMoves = append(possibleMoves, newPos)
+	}
+
+	return possibleMoves
+
+}
