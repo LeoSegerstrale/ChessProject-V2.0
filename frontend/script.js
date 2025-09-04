@@ -6,6 +6,7 @@ let selectedSquare = null;
 
 let currColour = "white-piece"
 let enPassant;
+let validMoves = [];
 
 for (let row = 0; row < 8; row++) { 
 
@@ -100,6 +101,8 @@ for (let row = 0; row < 8; row++) {
                 .then(data => {
                     clearHighlights();
 
+                    validMoves = data.validSquares
+
                     data.validSquares.forEach(coords => {
                         const squareEl = board.querySelector(`[data-square='${coords}']`);
                         if (squareEl) {
@@ -131,39 +134,41 @@ for (let row = 0; row < 8; row++) {
                 const toSquare = square.getAttribute("data-square");           // destination
                 const pieceSymbol = selectedPiece.innerText;
 
-                if (pieceSymbol == "♟" && ((currColour == "white-piece" && toSquare[0] == "4" && fromSquare[0] == "6") || (currColour == "black-piece" && toSquare[0] == "3" && fromSquare[0] == "1") )){
-                    enPassant = toSquare
-                } else {
-                    enPassant = ""
+                if (validMoves.includes(toSquare)) {
+                    if (pieceSymbol == "♟" && ((currColour == "white-piece" && toSquare[0] == "4" && fromSquare[0] == "6") || (currColour == "black-piece" && toSquare[0] == "3" && fromSquare[0] == "1") )){
+                        enPassant = toSquare
+                    } else {
+                        enPassant = ""
+                    }
+
+
+                    clearHighlights();
+                    // Remove piece from old square
+                    selectedSquare.removeChild(selectedPiece);
+
+                    // Remove piece in destination if any (capturing)
+                    if (pieceInSquare) {
+                        square.removeChild(pieceInSquare);
+                    }
+
+                    // Append the piece to new square
+                    square.appendChild(selectedPiece);
+
+                    // Clear selection
+                    selectedPiece = null;
+                    selectedSquare.classList.remove("selected");
+                    selectedSquare = null;
+                    if (currColour == "white-piece"){
+                        currColour = "black-piece"
+                    } else{
+                        currColour = "white-piece"
+                    }
+
                 }
 
 
-                clearHighlights();
-                // Remove piece from old square
-                selectedSquare.removeChild(selectedPiece);
-
-                // Remove piece in destination if any (capturing)
-                if (pieceInSquare) {
-                    square.removeChild(pieceInSquare);
-                }
-
-                // Append the piece to new square
-                square.appendChild(selectedPiece);
-
-                // Clear selection
-                selectedPiece = null;
-                selectedSquare.classList.remove("selected");
-                selectedSquare = null;
-                if (currColour == "white-piece"){
-                    currColour = "black-piece"
-                } else{
-                    currColour = "white-piece"
-                }
             }
         });
-
-        
-
 
         board.appendChild(square);
 
