@@ -181,7 +181,7 @@ func KingMover(location string, board [][]*model.Piece) []string {
 	return possibleMoves
 }
 
-func PawnMover(location string, board [][]*model.Piece) []string {
+func PawnMover(location string, board [][]*model.Piece, enPassant string) []string {
 	currY := int(location[0] - '0')
 	currX := int(location[1] - '0')
 
@@ -240,6 +240,28 @@ func PawnMover(location string, board [][]*model.Piece) []string {
 
 		newPos := strconv.Itoa(newY) + strconv.Itoa(newX)
 		possibleMoves = append(possibleMoves, newPos)
+	}
+
+	if enPassant != "" {
+		enPasY := int(enPassant[0] - '0')
+		enPasX := int(enPassant[1] - '0')
+
+		if enPasY == currY {
+			if enPasX == currX+1 {
+				newY = currY + rTake[0]
+				newX = currX + rTake[1]
+
+				newPos := strconv.Itoa(newY) + strconv.Itoa(newX)
+				possibleMoves = append(possibleMoves, newPos)
+			} else if enPasX == currX-1 {
+				newY = currY + lTake[0]
+				newX = currX + lTake[1]
+
+				newPos := strconv.Itoa(newY) + strconv.Itoa(newX)
+				possibleMoves = append(possibleMoves, newPos)
+			}
+		}
+
 	}
 
 	return possibleMoves

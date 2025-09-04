@@ -38,7 +38,7 @@ func GetValidMoves(req model.VMoveReq) []string {
 	} else if piece.Piece == "king" {
 		possibleMoves = KingMover(req.From, board)
 	} else if piece.Piece == "pawn" {
-		possibleMoves = PawnMover(req.From, board)
+		possibleMoves = PawnMover(req.From, board, req.EnPassantReq)
 	}
 
 	return possibleMoves

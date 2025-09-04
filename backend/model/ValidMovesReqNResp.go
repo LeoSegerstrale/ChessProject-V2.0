@@ -1,9 +1,9 @@
 package model
 
 type VMoveReq struct {
-	From string `json:"from"`
-
-	Board [][]*Piece `json:"board"`
+	From         string     `json:"from" validate:"required"`
+	Board        [][]*Piece `json:"board" validate:"required"`
+	EnPassantReq string     `json:"enPassant"`
 }
 
 type VMoveResp struct {

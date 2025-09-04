@@ -162,33 +162,44 @@ func TestKingMover(t *testing.T) {
 func TestPawnMover(t *testing.T) {
 	ogLoc := []int{6, 0}
 	tests := []struct {
-		name     string
-		location string
-		board    [][]*model.Piece
-		want     []string
+		name      string
+		location  string
+		board     [][]*model.Piece
+		want      []string
+		enPassant string
 	}{
 		{
-			name:     "pawn in second rank can jump two or one square",
-			location: "60",
-			board:    emptyBoard(ogLoc),
-			want:     []string{"50", "40"},
+			name:      "pawn in second rank can jump two or one square",
+			location:  "60",
+			board:     emptyBoard(ogLoc),
+			want:      []string{"50", "40"},
+			enPassant: "",
 		},
 		{
-			name:     "Pawn with blockers either side can take",
-			location: "34",
-			board:    boardWithPBlockers(),
-			want:     []string{"23", "25"},
+			name:      "Pawn with blockers either side can take",
+			location:  "34",
+			board:     boardWithPBlockers(),
+			want:      []string{"23", "25"},
+			enPassant: "",
 		},
 		{
-			name:     "Pawn with no available squares has no available squares",
-			location: "34",
-			board:    boardWithFBlockers(),
-			want:     []string{},
+			name:      "Pawn with no available squares has no available squares",
+			location:  "34",
+			board:     boardWithFBlockers(),
+			want:      []string{},
+			enPassant: "",
+		},
+		{
+			name:      "En Passant test baby",
+			location:  "34",
+			board:     boardWithEnPassant(),
+			want:      []string{"23"},
+			enPassant: "33",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := PawnMover(tt.location, tt.board)
+			got := PawnMover(tt.location, tt.board, tt.enPassant)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Got = %v, want %v", got, tt.want)
 			}
@@ -224,6 +235,35 @@ func boardWithFBlockers() [][]*model.Piece {
 		}
 	}
 	return board
+}
+
+func boardWithEnPassant() [][]*model.Piece {
+
+	oppPiece := &model.Piece{
+		Piece:  "",
+		Colour: "black",
+	}
+	samePiece := &model.Piece{
+		Piece:  "",
+		Colour: "white",
+	}
+
+	board := make([][]*model.Piece, 8)
+	for i := range board {
+		board[i] = make([]*model.Piece, 8)
+		for j := range board[i] {
+			if i == 3 && j == 4 {
+				board[i][j] = samePiece
+			} else if i == 3 && j == 3 {
+				board[i][j] = oppPiece
+			} else if i == 2 && j == 4 {
+				board[i][j] = oppPiece
+			}
+
+		}
+	}
+	return board
+
 }
 
 func boardWithPBlockers() [][]*model.Piece {

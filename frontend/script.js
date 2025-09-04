@@ -4,6 +4,9 @@ console.log(board)
 let selectedPiece = null;
 let selectedSquare = null;
 
+let currColour = "white-piece"
+let enPassant;
+
 for (let row = 0; row < 8; row++) { 
 
     let colourP;
@@ -72,18 +75,20 @@ for (let row = 0; row < 8; row++) {
             const pieceInSquare = square.querySelector("span");
 
 
-            if (!selectedPiece && pieceInSquare) {
+            if (!selectedPiece && pieceInSquare && pieceInSquare.classList.contains(currColour)) {
                 selectedPiece = pieceInSquare;
                 selectedSquare = square;
+
+
                 square.classList.add("selected");
 
 
                 const boardState = getBoard();
                 const fromSquare = selectedSquare.getAttribute("data-square");
-
                 const requestBody = {
                     from: fromSquare,
                     board: boardState,
+                    enPassant: enPassant
                 };
 
                 fetch("http://localhost:8080/vMoveCheck", {
@@ -93,7 +98,6 @@ for (let row = 0; row < 8; row++) {
                 })
                 .then(res => res.json())
                 .then(data => {
-                    console.log(data.validSquares);
                     clearHighlights();
 
                     data.validSquares.forEach(coords => {
@@ -122,6 +126,18 @@ for (let row = 0; row < 8; row++) {
 
             // --- CASE 3: moving the selected piece to a new square ---
             if (selectedPiece) {
+
+                const fromSquare = selectedSquare.getAttribute("data-square");
+                const toSquare = square.getAttribute("data-square");           // destination
+                const pieceSymbol = selectedPiece.innerText;
+
+                if (pieceSymbol == "♟" && ((currColour == "white-piece" && toSquare[0] == "4" && fromSquare[0] == "6") || (currColour == "black-piece" && toSquare[0] == "3" && fromSquare[0] == "1") )){
+                    enPassant = toSquare
+                } else {
+                    enPassant = ""
+                }
+
+
                 clearHighlights();
                 // Remove piece from old square
                 selectedSquare.removeChild(selectedPiece);
@@ -138,6 +154,11 @@ for (let row = 0; row < 8; row++) {
                 selectedPiece = null;
                 selectedSquare.classList.remove("selected");
                 selectedSquare = null;
+                if (currColour == "white-piece"){
+                    currColour = "black-piece"
+                } else{
+                    currColour = "white-piece"
+                }
             }
         });
 
