@@ -105,12 +105,10 @@ for (let row = 0; row < 8; row++) {
 
                     data.validSquares.forEach(coords => {
                         const squareEl = board.querySelector(`[data-square='${coords}']`);
-                        if (squareEl) {
-                            console.log("Found square:", coords, squareEl);
-                            squareEl.classList.add("highlight");
-                        } else {
-                            console.warn("Square not found:", coords);
-                        }
+
+                        console.log("Found square:", coords, squareEl);
+                        squareEl.classList.add("highlight");
+
                     });
                 })
                 .catch(err => console.error(err));
@@ -135,11 +133,7 @@ for (let row = 0; row < 8; row++) {
                 const pieceSymbol = selectedPiece.innerText;
 
                 if (validMoves.includes(toSquare)) {
-                    if (pieceSymbol == "♟" && ((currColour == "white-piece" && toSquare[0] == "4" && fromSquare[0] == "6") || (currColour == "black-piece" && toSquare[0] == "3" && fromSquare[0] == "1") )){
-                        enPassant = toSquare
-                    } else {
-                        enPassant = ""
-                    }
+
 
 
                     clearHighlights();
@@ -149,6 +143,20 @@ for (let row = 0; row < 8; row++) {
                     // Remove piece in destination if any (capturing)
                     if (pieceInSquare) {
                         square.removeChild(pieceInSquare);
+                    } else if (enPassant != "" && pieceSymbol == "♟" && toSquare[1] != fromSquare[1] && !pieceInSquare){
+
+
+                        const enPassantSquare = board.querySelector(`[data-square='${enPassant}']`);
+                        const capturedPawn = enPassantSquare.querySelector("span");
+                        enPassantSquare.removeChild(capturedPawn);
+
+
+                    }
+
+                    if (pieceSymbol == "♟" && ((currColour == "white-piece" && toSquare[0] == "4" && fromSquare[0] == "6") || (currColour == "black-piece" && toSquare[0] == "3" && fromSquare[0] == "1") )){
+                        enPassant = toSquare
+                    } else {
+                        enPassant = ""
                     }
 
                     // Append the piece to new square
@@ -163,6 +171,7 @@ for (let row = 0; row < 8; row++) {
                     } else{
                         currColour = "white-piece"
                     }
+
 
                 }
 
