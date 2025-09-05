@@ -4,6 +4,7 @@ type VMoveReq struct {
 	From         string     `json:"from" validate:"required"`
 	Board        [][]*Piece `json:"board" validate:"required"`
 	EnPassantReq string     `json:"enPassant"`
+	CastleStatus []bool     `json:"castleStatus"`
 }
 
 type VMoveResp struct {
@@ -13,8 +14,4 @@ type VMoveResp struct {
 type Piece struct {
 	Piece  string
 	Colour string
-}
-
-type Board struct {
-	Grid [][]*Piece
 }

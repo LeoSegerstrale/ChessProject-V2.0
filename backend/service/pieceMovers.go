@@ -139,7 +139,7 @@ func KnightMover(location string, board [][]*model.Piece) []string {
 	return possibleMoves
 }
 
-func KingMover(location string, board [][]*model.Piece) []string {
+func KingMover(location string, board [][]*model.Piece, castleStat []bool) []string {
 
 	currY := int(location[0] - '0')
 	currX := int(location[1] - '0')
@@ -176,6 +176,31 @@ func KingMover(location string, board [][]*model.Piece) []string {
 
 		}
 
+	}
+
+	if castleStat[1] {
+		castleLeft := true
+		castleRight := true
+		if castleStat[0] {
+			for i := 1; i < 7; i++ {
+				if board[currY][i] != nil {
+					castleRight = false
+
+				}
+			}
+			for i := 7; i > 1; i-- {
+				if board[currY][i] != nil {
+					castleLeft = false
+
+				}
+			}
+		}
+		if castleLeft {
+
+		}
+		if castleRight {
+
+		}
 	}
 
 	return possibleMoves

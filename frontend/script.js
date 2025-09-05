@@ -12,7 +12,7 @@ for (let row = 0; row < 8; row++) {
 
     let colourP;
 
-    if (row == 0 || row == 1){
+    if (row === 0 || row === 1){
         colourP = "black-piece"
     }else{
         colourP = "white-piece"
@@ -37,29 +37,29 @@ for (let row = 0; row < 8; row++) {
 
 
         const piece = document.createElement("span");
-        if (row == 1 || row == 6){
+        if (row === 1 || row === 6){
 
             piece.innerText = "♟";
             piece.classList.add(colourP); 
             square.appendChild(piece); 
 
-        } else if (row == 0 ||  row == 7){
+        } else if (row === 0 ||  row === 7){
             
-            if (col == 0 || col == 7){
+            if (col === 0 || col === 7){
                 piece.innerText = "♜";
                 piece.classList.add(colourP); 
                 square.appendChild(piece);  
-            } else if (col == 1 || col == 6){
+            } else if (col === 1 || col === 6){
 
                 piece.innerText = "♞";
                 piece.classList.add(colourP); 
                 square.appendChild(piece);  
-            } else if (col == 2 || col == 5){
+            } else if (col === 2 || col === 5){
 
                 piece.innerText = "♝";
                 piece.classList.add(colourP); 
                 square.appendChild(piece);  
-            } else if (col == 3){
+            } else if (col === 3){
 
                 piece.innerText = "♛";
                 piece.classList.add(colourP); 
@@ -143,7 +143,7 @@ for (let row = 0; row < 8; row++) {
                     // Remove piece in destination if any (capturing)
                     if (pieceInSquare) {
                         square.removeChild(pieceInSquare);
-                    } else if (enPassant != "" && pieceSymbol == "♟" && toSquare[1] != fromSquare[1] && !pieceInSquare){
+                    } else if (enPassant !== "" && pieceSymbol === "♟" && toSquare[1] !== fromSquare[1] && !pieceInSquare){
 
 
                         const enPassantSquare = board.querySelector(`[data-square='${enPassant}']`);
@@ -153,7 +153,7 @@ for (let row = 0; row < 8; row++) {
 
                     }
 
-                    if (pieceSymbol == "♟" && ((currColour == "white-piece" && toSquare[0] == "4" && fromSquare[0] == "6") || (currColour == "black-piece" && toSquare[0] == "3" && fromSquare[0] == "1") )){
+                    if (pieceSymbol === "♟" && ((currColour === "white-piece" && toSquare[0] === "4" && fromSquare[0] === "6") || (currColour === "black-piece" && toSquare[0] === "3" && fromSquare[0] === "1") )){
                         enPassant = toSquare
                     } else {
                         enPassant = ""
@@ -166,7 +166,7 @@ for (let row = 0; row < 8; row++) {
                     selectedPiece = null;
                     selectedSquare.classList.remove("selected");
                     selectedSquare = null;
-                    if (currColour == "white-piece"){
+                    if (currColour === "white-piece"){
                         currColour = "black-piece"
                     } else{
                         currColour = "white-piece"
