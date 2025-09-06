@@ -7,6 +7,10 @@ let selectedSquare = null;
 let currColour = "white-piece"
 let enPassant;
 let validMoves = [];
+let rookLocs = [];
+let WCastleAv = [true,true,true]
+let BCastleAv = [true,true,true]
+
 
 for (let row = 0; row < 8; row++) { 
 
@@ -48,7 +52,8 @@ for (let row = 0; row < 8; row++) {
             if (col === 0 || col === 7){
                 piece.innerText = "♜";
                 piece.classList.add(colourP); 
-                square.appendChild(piece);  
+                square.appendChild(piece);
+                rookLocs.push(squareName);
             } else if (col === 1 || col === 6){
 
                 piece.innerText = "♞";
@@ -80,7 +85,13 @@ for (let row = 0; row < 8; row++) {
                 selectedPiece = pieceInSquare;
                 selectedSquare = square;
 
+                let currCastleAv;
 
+                if (currColour === "white-piece"){
+                    currCastleAv = WCastleAv
+                } else {
+                    currCastleAv = BCastleAv
+                }
                 square.classList.add("selected");
 
 
@@ -89,8 +100,12 @@ for (let row = 0; row < 8; row++) {
                 const requestBody = {
                     from: fromSquare,
                     board: boardState,
-                    enPassant: enPassant
+                    enPassant: enPassant,
+                    CastleStatus: currCastleAv,
+                    rookLocs: rookLocs,
                 };
+
+                console.log(currCastleAv)
 
                 fetch("http://localhost:8080/vMoveCheck", {
                     method: "POST",
@@ -134,6 +149,8 @@ for (let row = 0; row < 8; row++) {
 
                 if (validMoves.includes(toSquare)) {
 
+                    const fromRLCol = parseInt(rookLocs[0][1])
+                    const fromRRCol = parseInt(rookLocs[1][1])
 
 
                     clearHighlights();
@@ -151,12 +168,58 @@ for (let row = 0; row < 8; row++) {
                         enPassantSquare.removeChild(capturedPawn);
 
 
+                    } else if (pieceSymbol === "♚") {
+                        const fromCol = parseInt(fromSquare[1]);
+                        const toCol = parseInt(toSquare[1]);
+
+                        const row = fromSquare[0];
+                        if (toCol - fromCol === 2){
+                            const rookFrom = board.querySelector(`[data-square='${row}${fromRRCol}']`);
+                            const rookTo = board.querySelector(`[data-square='${row}5']`);
+                            const rook = rookFrom.querySelector("span");
+                            rookFrom.removeChild(rook);
+                            rookTo.appendChild(rook);
+                        } else if (fromCol - toCol === 2){
+                            const rookFrom = board.querySelector(`[data-square='${row}${fromRLCol}']`);
+                            const rookTo = board.querySelector(`[data-square='${row}3']`);
+                            const rook = rookFrom.querySelector("span");
+                            rookFrom.removeChild(rook);
+                            rookTo.appendChild(rook);
+                        }
+
                     }
 
                     if (pieceSymbol === "♟" && ((currColour === "white-piece" && toSquare[0] === "4" && fromSquare[0] === "6") || (currColour === "black-piece" && toSquare[0] === "3" && fromSquare[0] === "1") )){
                         enPassant = toSquare
                     } else {
                         enPassant = ""
+                    }
+
+                    if (pieceSymbol === "♚"){
+                        if (currColour === "white-piece"){
+                            WCastleAv[1] = false
+                        } else {
+                            BCastleAv[1] = false
+                        }
+                    } else if (pieceSymbol === "♜"){
+                        if (fromSquare === rookLocs[0] || fromSquare === rookLocs[2]){
+
+                            if (currColour === "white-piece"){
+                                WCastleAv[0] = false
+
+                            } else {
+                                BCastleAv[0] = false
+                            }
+
+                        } else if (fromSquare === rookLocs[1] || fromSquare === rookLocs[3]){
+
+                            if (currColour === "white-piece"){
+                                WCastleAv[2] = false
+                            } else {
+                                BCastleAv[2] = false
+                            }
+
+                        }
                     }
 
                     // Append the piece to new square

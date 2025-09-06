@@ -122,39 +122,117 @@ func TestKnightMover(t *testing.T) {
 
 func TestKingMover(t *testing.T) {
 	ogLoc := []int{3, 4}
+	casLoc := []int{7, 4}
 
 	tests := []struct {
-		name     string
-		location string
-		board    [][]*model.Piece
-		want     []string
+		name       string
+		location   string
+		board      [][]*model.Piece
+		want       []string
+		castleStat []bool
+		rookLocs   []string
 	}{
 		{
-			name:     "Empty board center",
-			location: "34",
-			board:    emptyBoard(ogLoc),
-			want:     []string{"23", "43", "25", "45", "24", "44", "35", "33"},
+			name:       "If Castling blocked by pieceMovement",
+			location:   "74",
+			board:      boardWithBishopBlockCastleV2(),
+			want:       []string{"63", "65", "64", "75", "73", "72"},
+			castleStat: []bool{true, true, true},
+			rookLocs:   []string{"70", "77"},
 		},
 		{
-			name:     "Blocked by same color",
-			location: "34",
-			board:    boardWithFBlockers(),
-			want:     []string{},
+			name:       "Empty board center",
+			location:   "34",
+			board:      emptyBoard(ogLoc),
+			want:       []string{"23", "43", "25", "45", "24", "44", "35", "33"},
+			castleStat: []bool{false, false, false},
+			rookLocs:   []string{},
 		},
 		{
-			name:     "Partially blocked by opposite colour",
-			location: "34",
-			board:    boardWithPBlockers(),
-			want:     []string{"23", "43", "25", "45", "24", "44", "35", "33"},
+			name:       "Blocked by same color",
+			location:   "74",
+			board:      boardWithFBlockers(),
+			want:       []string{},
+			castleStat: []bool{true, true, true},
+			rookLocs:   []string{"70", "77"},
+		},
+		{
+			name:       "Partially blocked by opposite colour",
+			location:   "34",
+			board:      boardWithPBlockers(),
+			want:       []string{"23", "43", "25", "45", "24", "44", "35", "33"},
+			castleStat: []bool{false, false, false},
+			rookLocs:   []string{},
+		}, {
+			name:       "Castling works",
+			location:   "74",
+			board:      emptyBoard(casLoc),
+			want:       []string{"63", "65", "64", "75", "73", "72", "76"},
+			castleStat: []bool{true, true, true},
+			rookLocs:   []string{"70", "77"},
+		},
+		{
+			name:       "If Castling unavailable it does not say it is",
+			location:   "74",
+			board:      emptyBoard(casLoc),
+			want:       []string{"63", "65", "64", "75", "73"},
+			castleStat: []bool{false, true, false},
+			rookLocs:   []string{"70", "77"},
+		},
+		{
+			name:       "If Castling unavailable in one direction, it can only castle in one direction",
+			location:   "74",
+			board:      emptyBoard(casLoc),
+			want:       []string{"63", "65", "64", "75", "73", "72"},
+			castleStat: []bool{true, true, false},
+			rookLocs:   []string{"70", "77"},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := KingMover(tt.location, tt.board)
+			got := KingMover(tt.location, tt.board, tt.castleStat, tt.rookLocs, false)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Got = %v, want %v", got, tt.want)
 			}
+		})
+	}
+}
+
+func TestKingMoverHelpers(t *testing.T) {
+	tests := []struct {
+		name   string
+		currY  int
+		currX  int
+		colour string
+		board  [][]*model.Piece
+		want   bool
+	}{
+		{
+			name:   "Empty board center",
+			board:  emptyBoard([]int{7, 5}),
+			currY:  7,
+			currX:  5,
+			want:   true,
+			colour: "white",
+		},
+		{
+			name:   "Blocked by piece",
+			board:  boardWithBishopBlockCastle(),
+			currY:  7,
+			currX:  5,
+			want:   false,
+			colour: "white",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := kingVMoveChecker(tt.board, tt.currY, tt.currX, tt.colour)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Got = %v, want %v", got, tt.want)
+			}
+
 		})
 	}
 }
@@ -216,6 +294,38 @@ func emptyBoard(pPos []int) [][]*model.Piece {
 	}
 	board[pPos[0]][pPos[1]] = &model.Piece{
 		Piece:  "",
+		Colour: "white",
+	}
+	return board
+}
+
+func boardWithBishopBlockCastleV2() [][]*model.Piece {
+	board := make([][]*model.Piece, 8)
+	for i := range board {
+		board[i] = make([]*model.Piece, 8)
+	}
+	board[4][2] = &model.Piece{
+		Piece:  "bishop",
+		Colour: "black",
+	}
+	board[7][4] = &model.Piece{
+		Piece:  "king",
+		Colour: "white",
+	}
+	return board
+}
+
+func boardWithBishopBlockCastle() [][]*model.Piece {
+	board := make([][]*model.Piece, 8)
+	for i := range board {
+		board[i] = make([]*model.Piece, 8)
+	}
+	board[4][2] = &model.Piece{
+		Piece:  "bishop",
+		Colour: "black",
+	}
+	board[7][5] = &model.Piece{
+		Piece:  "king",
 		Colour: "white",
 	}
 	return board

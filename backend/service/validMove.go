@@ -27,16 +27,11 @@ func GetValidMoves(req model.VMoveReq) []string {
 	} else if piece.Piece == "rook" {
 		possibleMoves = RookMover(req.From, board)
 	} else if piece.Piece == "queen" {
-		possibleMoves = BishopMover(req.From, board)
-		extraMoves := RookMover(req.From, board)
-
-		for _, move := range extraMoves {
-			possibleMoves = append(possibleMoves, move)
-		}
+		possibleMoves = QueenMover(req.From, board)
 	} else if piece.Piece == "knight" {
 		possibleMoves = KnightMover(req.From, board)
 	} else if piece.Piece == "king" {
-		possibleMoves = KingMover(req.From, board, req.CastleStatus)
+		possibleMoves = KingMover(req.From, board, req.CastleStatus, req.RookLocs, false)
 	} else if piece.Piece == "pawn" {
 		possibleMoves = PawnMover(req.From, board, req.EnPassantReq)
 	}

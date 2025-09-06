@@ -57,6 +57,10 @@ func RookMover(location string, board [][]*model.Piece) []string {
 	currX := int(location[1] - '0')
 
 	directions := [][]int{
+		{-1, -1},
+		{1, -1},
+		{-1, 1},
+		{1, 1},
 		{-1, 0},
 		{1, 0},
 		{0, 1},
@@ -139,7 +143,7 @@ func KnightMover(location string, board [][]*model.Piece) []string {
 	return possibleMoves
 }
 
-func KingMover(location string, board [][]*model.Piece, castleStat []bool) []string {
+func KingMover(location string, board [][]*model.Piece, castleStat []bool, rookLocs []string, rec bool) []string {
 
 	currY := int(location[0] - '0')
 	currX := int(location[1] - '0')
@@ -179,26 +183,35 @@ func KingMover(location string, board [][]*model.Piece, castleStat []bool) []str
 	}
 
 	if castleStat[1] {
-		castleLeft := true
-		castleRight := true
-		if castleStat[0] {
-			for i := 1; i < 7; i++ {
-				if board[currY][i] != nil {
-					castleRight = false
+		castleLeft := false
+		castleRight := false
 
-				}
-			}
-			for i := 7; i > 1; i-- {
-				if board[currY][i] != nil {
+		if castleStat[0] {
+			castleLeft = true
+			rRookLoc := int(rookLocs[1][1] - '0')
+			for i := currX - 1; i > 1; i-- {
+				if (board[currY][i] != nil || i == rRookLoc) || !kingVMoveChecker(board, currY, i, board[currY][currX].Colour) {
 					castleLeft = false
 
 				}
 			}
 		}
+		if castleStat[2] {
+			castleRight = true
+			lRookLoc := int(rookLocs[0][1] - '0')
+			for i := currX + 1; i < 7; i++ {
+				if (board[currY][i] != nil || i == lRookLoc) || !kingVMoveChecker(board, currY, i, board[currY][currX].Colour) {
+					castleRight = false
+
+				}
+			}
+		}
 		if castleLeft {
+			possibleMoves = append(possibleMoves, strconv.Itoa(currY)+strconv.Itoa(2))
 
 		}
 		if castleRight {
+			possibleMoves = append(possibleMoves, strconv.Itoa(currY)+strconv.Itoa(6))
 
 		}
 	}
@@ -291,4 +304,78 @@ func PawnMover(location string, board [][]*model.Piece, enPassant string) []stri
 
 	return possibleMoves
 
+}
+
+func QueenMover(location string, board [][]*model.Piece) []string {
+
+	possibleMoves := BishopMover(location, board)
+	extraMoves := RookMover(location, board)
+
+	for _, move := range extraMoves {
+		possibleMoves = append(possibleMoves, move)
+	}
+	return possibleMoves
+}
+
+func kingVMoveChecker(board [][]*model.Piece, currY int, currX int, colour string) bool {
+
+	good := true
+
+	strCurrY := strconv.Itoa(currY)
+	strCurrX := strconv.Itoa(currX)
+	location := strCurrY + strCurrX
+
+	prev := board[currY][currX]
+
+	board[currY][currX] = &model.Piece{
+		Piece:  "",
+		Colour: colour,
+	}
+
+	rookMoves := RookMover(location, board)
+
+	if kingMoveHelper(board, rookMoves, colour, "rook") {
+		good = false
+	}
+
+	knightMoves := KnightMover(location, board)
+
+	if good && kingMoveHelper(board, knightMoves, colour, "knight") {
+		good = false
+	}
+
+	bishopMoves := BishopMover(location, board)
+
+	if good && kingMoveHelper(board, bishopMoves, colour, "bishop") {
+		good = false
+	}
+
+	queenMoves := QueenMover(location, board)
+
+	if good && kingMoveHelper(board, queenMoves, colour, "queen") {
+		good = false
+	}
+
+	kingMoves := KingMover(location, board, []bool{false, false, false}, []string{}, true)
+
+	if good && kingMoveHelper(board, kingMoves, colour, "king") {
+		good = false
+	}
+
+	board[currY][currX] = prev
+
+	return good
+}
+
+func kingMoveHelper(board [][]*model.Piece, moves []string, colour string, piece string) bool {
+	for _, move := range moves {
+		moveX, _ := strconv.Atoi(string(move[1]))
+		moveY, _ := strconv.Atoi(string(move[0]))
+
+		if board[moveY][moveX] != nil && board[moveY][moveX].Colour != colour && board[moveY][moveX].Piece == piece {
+			return true
+		}
+	}
+
+	return false
 }

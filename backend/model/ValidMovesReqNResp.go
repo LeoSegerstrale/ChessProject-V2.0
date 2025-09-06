@@ -5,6 +5,7 @@ type VMoveReq struct {
 	Board        [][]*Piece `json:"board" validate:"required"`
 	EnPassantReq string     `json:"enPassant"`
 	CastleStatus []bool     `json:"castleStatus"`
+	RookLocs     []string   `json:"rookLocs"`
 }
 
 type VMoveResp struct {
