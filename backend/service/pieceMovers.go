@@ -332,30 +332,46 @@ func kingVMoveChecker(board [][]*model.Piece, currY int, currX int, colour strin
 
 	if kingMoveHelper(board, rookMoves, colour, "rook") {
 		good = false
+		board[currY][currX] = prev
+
+		return good
+
 	}
 
 	knightMoves := KnightMover(location, board, location)
 
 	if good && kingMoveHelper(board, knightMoves, colour, "knight") {
 		good = false
+		board[currY][currX] = prev
+
+		return good
 	}
 
 	bishopMoves := BishopMover(location, board, location)
 
 	if good && kingMoveHelper(board, bishopMoves, colour, "bishop") {
 		good = false
+		board[currY][currX] = prev
+
+		return good
 	}
 
 	queenMoves := QueenMover(location, board, location)
 
 	if good && kingMoveHelper(board, queenMoves, colour, "queen") {
 		good = false
+		board[currY][currX] = prev
+
+		return good
 	}
 
 	kingMoves := KingMover(location, board, []bool{false, false, false}, []string{}, true)
 
 	if good && kingMoveHelper(board, kingMoves, colour, "king") {
 		good = false
+		board[currY][currX] = prev
+
+		return good
 	}
 
 	board[currY][currX] = prev
@@ -376,6 +392,48 @@ func kingMoveHelper(board [][]*model.Piece, moves []string, colour string, piece
 	return false
 }
 
-func returnBoard(board [][]*model.Piece, fromSquare []int, toSquare []int, piece *model.Piece, kingLoc string) (bool, [][]*model.Piece) {
-	return false, board
+func returnBoard(board [][]*model.Piece, fromSquare []int, moves []string, piece *model.Piece, kingLoc string) ([]string, [][][]*model.Piece) {
+
+	if kingLoc == "" { // for testing
+		return moves, [][][]*model.Piece{}
+	}
+
+	kingLocX, _ := strconv.Atoi(string(kingLoc[1]))
+	kingLocY, _ := strconv.Atoi(string(kingLoc[0]))
+
+	colour := board[fromSquare[0]][fromSquare[1]].Colour
+
+	checkedMoves := []string{}
+	listOBoards := [][][]*model.Piece{}
+
+	for _, move := range moves {
+		moveX, _ := strconv.Atoi(string(move[1]))
+		moveY, _ := strconv.Atoi(string(move[0]))
+
+		captured := board[moveY][moveX]
+		board[fromSquare[0]][fromSquare[1]] = nil
+		board[moveY][moveX] = piece
+		if kingVMoveChecker(board, kingLocY, kingLocX, colour) {
+			checkedMoves = append(checkedMoves, move)
+			listOBoards = append(listOBoards, cloneBoard(board))
+		}
+		board[fromSquare[0]][fromSquare[1]] = piece
+		board[moveY][moveX] = captured
+
+	}
+	return checkedMoves, listOBoards
+}
+
+func cloneBoard(board [][]*model.Piece) [][]*model.Piece {
+	newBoard := make([][]*model.Piece, len(board))
+	for i := range board {
+		newBoard[i] = make([]*model.Piece, len(board[i]))
+		for j := range board[i] {
+			if board[i][j] != nil {
+				pieceCopy := *board[i][j]
+				newBoard[i][j] = &pieceCopy
+			}
+		}
+	}
+	return newBoard
 }
