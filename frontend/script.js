@@ -10,6 +10,8 @@ let validMoves = [];
 let rookLocs = [];
 let WCastleAv = [true,true,true]
 let BCastleAv = [true,true,true]
+let WKingLoc;
+let BKingLoc;
 
 
 for (let row = 0; row < 8; row++) { 
@@ -86,11 +88,15 @@ for (let row = 0; row < 8; row++) {
                 selectedSquare = square;
 
                 let currCastleAv;
+                let currKingLoc;
 
                 if (currColour === "white-piece"){
                     currCastleAv = WCastleAv
+                    currKingLoc = WKingLoc
+
                 } else {
                     currCastleAv = BCastleAv
+                    currKingLoc = BKingLoc
                 }
                 square.classList.add("selected");
 
@@ -103,9 +109,9 @@ for (let row = 0; row < 8; row++) {
                     enPassant: enPassant,
                     CastleStatus: currCastleAv,
                     rookLocs: rookLocs,
+                    kingLoc: currKingLoc
                 };
 
-                console.log(currCastleAv)
 
                 fetch("http://localhost:8080/vMoveCheck", {
                     method: "POST",
@@ -169,10 +175,17 @@ for (let row = 0; row < 8; row++) {
 
 
                     } else if (pieceSymbol === "♚") {
+
+                        if (currColour == "white-piece"){
+                            WKingLoc = toSquare
+                        }else{
+                            BKingLoc = toSquare
+                        }
+
                         const fromCol = parseInt(fromSquare[1]);
                         const toCol = parseInt(toSquare[1]);
-
                         const row = fromSquare[0];
+
                         if (toCol - fromCol === 2){
                             const rookFrom = board.querySelector(`[data-square='${row}${fromRRCol}']`);
                             const rookTo = board.querySelector(`[data-square='${row}5']`);

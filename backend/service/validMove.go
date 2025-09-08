@@ -22,18 +22,18 @@ func GetValidMoves(req model.VMoveReq) []string {
 	var possibleMoves []string
 
 	if piece.Piece == "bishop" {
-		possibleMoves = BishopMover(req.From, board)
+		possibleMoves = BishopMover(req.From, board, req.KingLoc)
 
 	} else if piece.Piece == "rook" {
-		possibleMoves = RookMover(req.From, board)
+		possibleMoves = RookMover(req.From, board, req.KingLoc)
 	} else if piece.Piece == "queen" {
-		possibleMoves = QueenMover(req.From, board)
+		possibleMoves = QueenMover(req.From, board, req.KingLoc)
 	} else if piece.Piece == "knight" {
-		possibleMoves = KnightMover(req.From, board)
+		possibleMoves = KnightMover(req.From, board, req.KingLoc)
 	} else if piece.Piece == "king" {
 		possibleMoves = KingMover(req.From, board, req.CastleStatus, req.RookLocs, false)
 	} else if piece.Piece == "pawn" {
-		possibleMoves = PawnMover(req.From, board, req.EnPassantReq)
+		possibleMoves = PawnMover(req.From, board, req.EnPassantReq, req.KingLoc)
 	}
 
 	return possibleMoves

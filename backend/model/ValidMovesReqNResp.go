@@ -6,6 +6,7 @@ type VMoveReq struct {
 	EnPassantReq string     `json:"enPassant"`
 	CastleStatus []bool     `json:"castleStatus"`
 	RookLocs     []string   `json:"rookLocs"`
+	KingLoc      string     `json:"kingLoc"`
 }
 
 type VMoveResp struct {

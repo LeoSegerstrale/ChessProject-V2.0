@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-func BishopMover(location string, board [][]*model.Piece) []string {
+func BishopMover(location string, board [][]*model.Piece, kingLoc string) []string {
 
 	currY := int(location[0] - '0')
 	currX := int(location[1] - '0')
@@ -51,7 +51,7 @@ func BishopMover(location string, board [][]*model.Piece) []string {
 	return possibleMoves
 }
 
-func RookMover(location string, board [][]*model.Piece) []string {
+func RookMover(location string, board [][]*model.Piece, kingLoc string) []string {
 
 	currY := int(location[0] - '0')
 	currX := int(location[1] - '0')
@@ -97,7 +97,7 @@ func RookMover(location string, board [][]*model.Piece) []string {
 	return possibleMoves
 }
 
-func KnightMover(location string, board [][]*model.Piece) []string {
+func KnightMover(location string, board [][]*model.Piece, kingLoc string) []string {
 
 	currY := int(location[0] - '0')
 	currX := int(location[1] - '0')
@@ -215,7 +215,7 @@ func KingMover(location string, board [][]*model.Piece, castleStat []bool, rookL
 	return possibleMoves
 }
 
-func PawnMover(location string, board [][]*model.Piece, enPassant string) []string {
+func PawnMover(location string, board [][]*model.Piece, enPassant string, kingLoc string) []string {
 	currY := int(location[0] - '0')
 	currX := int(location[1] - '0')
 
@@ -302,10 +302,10 @@ func PawnMover(location string, board [][]*model.Piece, enPassant string) []stri
 
 }
 
-func QueenMover(location string, board [][]*model.Piece) []string {
+func QueenMover(location string, board [][]*model.Piece, kingLoc string) []string {
 
-	possibleMoves := BishopMover(location, board)
-	extraMoves := RookMover(location, board)
+	possibleMoves := BishopMover(location, board, kingLoc)
+	extraMoves := RookMover(location, board, kingLoc)
 
 	for _, move := range extraMoves {
 		possibleMoves = append(possibleMoves, move)
@@ -328,25 +328,25 @@ func kingVMoveChecker(board [][]*model.Piece, currY int, currX int, colour strin
 		Colour: colour,
 	}
 
-	rookMoves := RookMover(location, board)
+	rookMoves := RookMover(location, board, location)
 
 	if kingMoveHelper(board, rookMoves, colour, "rook") {
 		good = false
 	}
 
-	knightMoves := KnightMover(location, board)
+	knightMoves := KnightMover(location, board, location)
 
 	if good && kingMoveHelper(board, knightMoves, colour, "knight") {
 		good = false
 	}
 
-	bishopMoves := BishopMover(location, board)
+	bishopMoves := BishopMover(location, board, location)
 
 	if good && kingMoveHelper(board, bishopMoves, colour, "bishop") {
 		good = false
 	}
 
-	queenMoves := QueenMover(location, board)
+	queenMoves := QueenMover(location, board, location)
 
 	if good && kingMoveHelper(board, queenMoves, colour, "queen") {
 		good = false
@@ -374,4 +374,8 @@ func kingMoveHelper(board [][]*model.Piece, moves []string, colour string, piece
 	}
 
 	return false
+}
+
+func returnBoard(board [][]*model.Piece, fromSquare []int, toSquare []int, piece *model.Piece, kingLoc string) (bool, [][]*model.Piece) {
+	return false, board
 }

@@ -13,6 +13,7 @@ func TestBishopMover(t *testing.T) {
 		location string
 		board    [][]*model.Piece
 		want     []string
+		kingLoc  string
 	}{
 		{
 			name:     "Empty board center",
@@ -36,7 +37,7 @@ func TestBishopMover(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := BishopMover(tt.location, tt.board)
+			got := BishopMover(tt.location, tt.board, tt.kingLoc)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Got = %v, want %v", got, tt.want)
 			}
@@ -51,6 +52,7 @@ func TestRookMover(t *testing.T) {
 		location string
 		board    [][]*model.Piece
 		want     []string
+		kingLoc  string
 	}{
 		{
 			name:     "Empty board center",
@@ -74,7 +76,7 @@ func TestRookMover(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := RookMover(tt.location, tt.board)
+			got := RookMover(tt.location, tt.board, tt.kingLoc)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Got = %v, want %v", got, tt.want)
 			}
@@ -89,6 +91,7 @@ func TestKnightMover(t *testing.T) {
 		location string
 		board    [][]*model.Piece
 		want     []string
+		kingLoc  string
 	}{
 		{
 			name:     "Empty board center",
@@ -112,7 +115,7 @@ func TestKnightMover(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := KnightMover(tt.location, tt.board)
+			got := KnightMover(tt.location, tt.board, tt.kingLoc)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Got = %v, want %v", got, tt.want)
 			}
@@ -245,6 +248,7 @@ func TestPawnMover(t *testing.T) {
 		board     [][]*model.Piece
 		want      []string
 		enPassant string
+		kingLoc   string
 	}{
 		{
 			name:      "pawn in second rank can jump two or one square",
@@ -277,7 +281,7 @@ func TestPawnMover(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := PawnMover(tt.location, tt.board, tt.enPassant)
+			got := PawnMover(tt.location, tt.board, tt.enPassant, tt.kingLoc)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Got = %v, want %v", got, tt.want)
 			}
