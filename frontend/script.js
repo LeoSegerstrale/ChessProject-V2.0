@@ -1,5 +1,4 @@
 const board = document.getElementById("board")
-console.log(board)
 
 let selectedPiece = null;
 let selectedSquare = null;
@@ -75,7 +74,12 @@ for (let row = 0; row < 8; row++) {
 
                 piece.innerText = "♚";
                 piece.classList.add(colourP); 
-                square.appendChild(piece);  
+                square.appendChild(piece);
+                if (row===7){
+                    WKingLoc = `${row}${col}`;
+                } else{
+                    BKingLoc = `${row}${col}`;
+                }
             }
         }
 
@@ -103,6 +107,7 @@ for (let row = 0; row < 8; row++) {
 
                 const boardState = getBoard();
                 const fromSquare = selectedSquare.getAttribute("data-square");
+
                 const requestBody = {
                     from: fromSquare,
                     board: boardState,
@@ -127,7 +132,7 @@ for (let row = 0; row < 8; row++) {
                     data.validSquares.forEach(coords => {
                         const squareEl = board.querySelector(`[data-square='${coords}']`);
 
-                        console.log("Found square:", coords, squareEl);
+
                         squareEl.classList.add("highlight");
 
                     });

@@ -5,10 +5,11 @@ import (
 	"strconv"
 )
 
-func BishopMover(location string, board [][]*model.Piece, kingLoc string) []string {
+func BishopMover(location string, board [][]*model.Piece, kingLoc string, rec bool) ([]string, [][][]*model.Piece) {
 
 	currY := int(location[0] - '0')
 	currX := int(location[1] - '0')
+	var listOBoard [][][]*model.Piece
 
 	directions := [][]int{
 		{-1, -1},
@@ -48,13 +49,19 @@ func BishopMover(location string, board [][]*model.Piece, kingLoc string) []stri
 
 	}
 
-	return possibleMoves
+	if rec && kingLoc != "" {
+		possibleMoves, listOBoard = validMovesAndBoard(board, []int{currY, currX}, possibleMoves, board[currY][currX], kingLoc)
+	}
+
+	return possibleMoves, listOBoard
 }
 
-func RookMover(location string, board [][]*model.Piece, kingLoc string) []string {
+func RookMover(location string, board [][]*model.Piece, kingLoc string, rec bool) ([]string, [][][]*model.Piece) {
 
 	currY := int(location[0] - '0')
 	currX := int(location[1] - '0')
+
+	var listOBoard [][][]*model.Piece
 
 	directions := [][]int{
 		{-1, 0},
@@ -94,13 +101,18 @@ func RookMover(location string, board [][]*model.Piece, kingLoc string) []string
 
 	}
 
-	return possibleMoves
+	if rec && kingLoc != "" {
+		possibleMoves, listOBoard = validMovesAndBoard(board, []int{currY, currX}, possibleMoves, board[currY][currX], kingLoc)
+	}
+
+	return possibleMoves, listOBoard
 }
 
-func KnightMover(location string, board [][]*model.Piece, kingLoc string) []string {
+func KnightMover(location string, board [][]*model.Piece, kingLoc string, rec bool) ([]string, [][][]*model.Piece) {
 
 	currY := int(location[0] - '0')
 	currX := int(location[1] - '0')
+	var listOBoard [][][]*model.Piece
 
 	directions := [][]int{
 		{2, 1},
@@ -136,13 +148,18 @@ func KnightMover(location string, board [][]*model.Piece, kingLoc string) []stri
 
 	}
 
-	return possibleMoves
+	if rec && kingLoc != "" {
+		possibleMoves, listOBoard = validMovesAndBoard(board, []int{currY, currX}, possibleMoves, board[currY][currX], kingLoc)
+	}
+
+	return possibleMoves, listOBoard
 }
 
-func KingMover(location string, board [][]*model.Piece, castleStat []bool, rookLocs []string, rec bool) []string {
+func KingMover(location string, board [][]*model.Piece, castleStat []bool, rookLocs []string, rec bool) ([]string, [][][]*model.Piece) {
 
 	currY := int(location[0] - '0')
 	currX := int(location[1] - '0')
+	var listOBoard [][][]*model.Piece
 
 	directions := [][]int{
 		{-1, -1},
@@ -212,12 +229,17 @@ func KingMover(location string, board [][]*model.Piece, castleStat []bool, rookL
 		}
 	}
 
-	return possibleMoves
+	if rec {
+		possibleMoves, listOBoard = validMovesAndBoard(board, []int{currY, currX}, possibleMoves, board[currY][currX], "!")
+	}
+
+	return possibleMoves, listOBoard
 }
 
-func PawnMover(location string, board [][]*model.Piece, enPassant string, kingLoc string) []string {
+func PawnMover(location string, board [][]*model.Piece, enPassant string, kingLoc string, rec bool) ([]string, [][][]*model.Piece) {
 	currY := int(location[0] - '0')
 	currX := int(location[1] - '0')
+	var listOBoard [][][]*model.Piece
 
 	var newY int
 	var newX int
@@ -298,19 +320,28 @@ func PawnMover(location string, board [][]*model.Piece, enPassant string, kingLo
 
 	}
 
-	return possibleMoves
+	if rec && kingLoc != "" {
+		possibleMoves, listOBoard = validMovesAndBoard(board, []int{currY, currX}, possibleMoves, board[currY][currX], kingLoc)
+	}
+
+	return possibleMoves, listOBoard
 
 }
 
-func QueenMover(location string, board [][]*model.Piece, kingLoc string) []string {
+func QueenMover(location string, board [][]*model.Piece, kingLoc string, rec bool) ([]string, [][][]*model.Piece) {
 
-	possibleMoves := BishopMover(location, board, kingLoc)
-	extraMoves := RookMover(location, board, kingLoc)
+	possibleMoves, boards := BishopMover(location, board, kingLoc, rec)
+	extraMoves, extraboards := RookMover(location, board, kingLoc, rec)
 
-	for _, move := range extraMoves {
-		possibleMoves = append(possibleMoves, move)
+	if rec {
+		for i, move := range extraMoves {
+			possibleMoves = append(possibleMoves, move)
+			boards = append(boards, extraboards[i])
+		}
+
 	}
-	return possibleMoves
+
+	return possibleMoves, boards
 }
 
 func kingVMoveChecker(board [][]*model.Piece, currY int, currX int, colour string) bool {
@@ -328,7 +359,7 @@ func kingVMoveChecker(board [][]*model.Piece, currY int, currX int, colour strin
 		Colour: colour,
 	}
 
-	rookMoves := RookMover(location, board, location)
+	rookMoves, _ := RookMover(location, board, location, false)
 
 	if kingMoveHelper(board, rookMoves, colour, "rook") {
 		good = false
@@ -338,36 +369,36 @@ func kingVMoveChecker(board [][]*model.Piece, currY int, currX int, colour strin
 
 	}
 
-	knightMoves := KnightMover(location, board, location)
+	knightMoves, _ := KnightMover(location, board, location, false)
 
-	if good && kingMoveHelper(board, knightMoves, colour, "knight") {
+	if kingMoveHelper(board, knightMoves, colour, "knight") {
 		good = false
 		board[currY][currX] = prev
 
 		return good
 	}
 
-	bishopMoves := BishopMover(location, board, location)
+	bishopMoves, _ := BishopMover(location, board, location, false)
 
-	if good && kingMoveHelper(board, bishopMoves, colour, "bishop") {
+	if kingMoveHelper(board, bishopMoves, colour, "bishop") {
 		good = false
 		board[currY][currX] = prev
 
 		return good
 	}
 
-	queenMoves := QueenMover(location, board, location)
+	queenMoves, _ := QueenMover(location, board, location, false)
 
-	if good && kingMoveHelper(board, queenMoves, colour, "queen") {
+	if kingMoveHelper(board, queenMoves, colour, "queen") {
 		good = false
 		board[currY][currX] = prev
 
 		return good
 	}
 
-	kingMoves := KingMover(location, board, []bool{false, false, false}, []string{}, true)
+	kingMoves, _ := KingMover(location, board, []bool{false, false, false}, []string{}, false)
 
-	if good && kingMoveHelper(board, kingMoves, colour, "king") {
+	if kingMoveHelper(board, kingMoves, colour, "king") {
 		good = false
 		board[currY][currX] = prev
 
@@ -394,12 +425,17 @@ func kingMoveHelper(board [][]*model.Piece, moves []string, colour string, piece
 
 func validMovesAndBoard(board [][]*model.Piece, fromSquare []int, moves []string, piece *model.Piece, kingLoc string) ([]string, [][][]*model.Piece) {
 
+	var kingLocX int
+	var kingLocY int
 	if kingLoc == "" { // for testing
 		return moves, [][][]*model.Piece{}
 	}
 
-	kingLocX, _ := strconv.Atoi(string(kingLoc[1]))
-	kingLocY, _ := strconv.Atoi(string(kingLoc[0]))
+	if kingLoc != "!" {
+		kingLocX, _ = strconv.Atoi(string(kingLoc[1]))
+		kingLocY, _ = strconv.Atoi(string(kingLoc[0]))
+
+	}
 
 	colour := board[fromSquare[0]][fromSquare[1]].Colour
 
@@ -407,6 +443,10 @@ func validMovesAndBoard(board [][]*model.Piece, fromSquare []int, moves []string
 	listOBoards := [][][]*model.Piece{}
 
 	for _, move := range moves {
+		if kingLoc == "!" {
+			kingLocX, _ = strconv.Atoi(string(move[1]))
+			kingLocY, _ = strconv.Atoi(string(move[0]))
+		}
 		moveX, _ := strconv.Atoi(string(move[1]))
 		moveY, _ := strconv.Atoi(string(move[0]))
 

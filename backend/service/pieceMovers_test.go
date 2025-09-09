@@ -37,12 +37,13 @@ func TestBishopMover(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := BishopMover(tt.location, tt.board, tt.kingLoc)
+			got, _ := BishopMover(tt.location, tt.board, tt.kingLoc, true)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Got = %v, want %v", got, tt.want)
 			}
 		})
 	}
+
 }
 
 func TestRookMover(t *testing.T) {
@@ -76,7 +77,7 @@ func TestRookMover(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := RookMover(tt.location, tt.board, tt.kingLoc)
+			got, _ := RookMover(tt.location, tt.board, tt.kingLoc, true)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Got = %v, want %v", got, tt.want)
 			}
@@ -115,7 +116,7 @@ func TestKnightMover(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := KnightMover(tt.location, tt.board, tt.kingLoc)
+			got, _ := KnightMover(tt.location, tt.board, tt.kingLoc, true)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Got = %v, want %v", got, tt.want)
 			}
@@ -139,7 +140,7 @@ func TestKingMover(t *testing.T) {
 			name:       "If Castling blocked by pieceMovement",
 			location:   "74",
 			board:      boardWithBishopBlockCastleV2(),
-			want:       []string{"63", "65", "64", "75", "73", "72"},
+			want:       []string{"63", "65", "73", "72"},
 			castleStat: []bool{true, true, true},
 			rookLocs:   []string{"70", "77"},
 		},
@@ -194,7 +195,7 @@ func TestKingMover(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := KingMover(tt.location, tt.board, tt.castleStat, tt.rookLocs, false)
+			got, _ := KingMover(tt.location, tt.board, tt.castleStat, tt.rookLocs, true)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Got = %v, want %v", got, tt.want)
 			}
@@ -281,7 +282,7 @@ func TestPawnMover(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := PawnMover(tt.location, tt.board, tt.enPassant, tt.kingLoc)
+			got, _ := PawnMover(tt.location, tt.board, tt.enPassant, tt.kingLoc, true)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Got = %v, want %v", got, tt.want)
 			}
@@ -301,12 +302,46 @@ func TestValidBoard(t *testing.T) {
 		kingLoc    string
 	}{
 		{
+			name:       "If piece is pinned, it cant move v2",
+			board:      boardWithPinnedPieceV2(),
+			fromSquare: []int{6, 3},
+			wantList:   []string{},
+			ToSquares:  []string{"53", "43"},
+			kingLoc:    "74",
+			piece: &model.Piece{
+				Colour: "white",
+				Piece:  "Pawn",
+			},
+		},
+		{
 			name:       "empty board, no validation",
 			board:      emptyBoard([]int{4, 3}),
 			fromSquare: []int{4, 3},
 			wantList:   []string{"33"},
 			ToSquares:  []string{"33"},
 			kingLoc:    "74",
+			piece: &model.Piece{
+				Colour: "white",
+				Piece:  "Pawn",
+			},
+		}, {
+			name:       "if king is in check nothing received",
+			board:      boardWithBishopBlockCastleV2(),
+			fromSquare: []int{4, 3},
+			wantList:   []string{},
+			ToSquares:  []string{"33"},
+			kingLoc:    "75",
+			piece: &model.Piece{
+				Colour: "white",
+				Piece:  "Pawn",
+			},
+		}, {
+			name:       "If piece is pinned, it cant move",
+			board:      boardWithPinnedPiece(),
+			fromSquare: []int{6, 4},
+			wantList:   []string{},
+			ToSquares:  []string{"54", "44"},
+			kingLoc:    "75",
 			piece: &model.Piece{
 				Colour: "white",
 				Piece:  "Pawn",
@@ -346,7 +381,31 @@ func boardWithBishopBlockCastleV2() [][]*model.Piece {
 		Piece:  "bishop",
 		Colour: "black",
 	}
+	board[4][3] = &model.Piece{
+		Piece:  "pawn",
+		Colour: "white",
+	}
 	board[7][4] = &model.Piece{
+		Piece:  "king",
+		Colour: "white",
+	}
+	return board
+}
+
+func boardWithPinnedPiece() [][]*model.Piece {
+	board := make([][]*model.Piece, 8)
+	for i := range board {
+		board[i] = make([]*model.Piece, 8)
+	}
+	board[4][2] = &model.Piece{
+		Piece:  "bishop",
+		Colour: "black",
+	}
+	board[6][4] = &model.Piece{
+		Piece:  "pawn",
+		Colour: "white",
+	}
+	board[7][5] = &model.Piece{
 		Piece:  "king",
 		Colour: "white",
 	}
@@ -436,6 +495,26 @@ func boardWithPBlockers() [][]*model.Piece {
 			}
 
 		}
+	}
+	return board
+}
+
+func boardWithPinnedPieceV2() [][]*model.Piece {
+	board := make([][]*model.Piece, 8)
+	for i := range board {
+		board[i] = make([]*model.Piece, 8)
+	}
+	board[4][1] = &model.Piece{
+		Piece:  "bishop",
+		Colour: "black",
+	}
+	board[6][3] = &model.Piece{
+		Piece:  "pawn",
+		Colour: "white",
+	}
+	board[7][4] = &model.Piece{
+		Piece:  "king",
+		Colour: "white",
 	}
 	return board
 }
