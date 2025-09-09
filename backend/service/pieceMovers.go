@@ -392,7 +392,7 @@ func kingMoveHelper(board [][]*model.Piece, moves []string, colour string, piece
 	return false
 }
 
-func returnBoard(board [][]*model.Piece, fromSquare []int, moves []string, piece *model.Piece, kingLoc string) ([]string, [][][]*model.Piece) {
+func validMovesAndBoard(board [][]*model.Piece, fromSquare []int, moves []string, piece *model.Piece, kingLoc string) ([]string, [][][]*model.Piece) {
 
 	if kingLoc == "" { // for testing
 		return moves, [][][]*model.Piece{}

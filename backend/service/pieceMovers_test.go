@@ -289,6 +289,40 @@ func TestPawnMover(t *testing.T) {
 	}
 }
 
+func TestValidBoard(t *testing.T) {
+	tests := []struct {
+		name       string
+		board      [][]*model.Piece
+		wantBoard  [][][]*model.Piece
+		wantList   []string
+		fromSquare []int
+		ToSquares  []string
+		piece      *model.Piece
+		kingLoc    string
+	}{
+		{
+			name:       "empty board, no validation",
+			board:      emptyBoard([]int{4, 3}),
+			fromSquare: []int{4, 3},
+			wantList:   []string{"33"},
+			ToSquares:  []string{"33"},
+			kingLoc:    "74",
+			piece: &model.Piece{
+				Colour: "white",
+				Piece:  "Pawn",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotL, gotB := validMovesAndBoard(tt.board, tt.fromSquare, tt.ToSquares, tt.piece, tt.kingLoc)
+			if !reflect.DeepEqual(gotL, tt.wantList) && !reflect.DeepEqual(gotB, tt.wantBoard) {
+				t.Errorf("Got = %v, want %v \n Got %v, want %v", gotL, tt.wantList, gotB, tt.wantBoard)
+			}
+		})
+	}
+}
+
 //HELPER FUNCTIONS
 
 func emptyBoard(pPos []int) [][]*model.Piece {
