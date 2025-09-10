@@ -339,6 +339,10 @@ func QueenMover(location string, board [][]*model.Piece, kingLoc string, rec boo
 			boards = append(boards, extraboards[i])
 		}
 
+	} else {
+		for _, move := range extraMoves {
+			possibleMoves = append(possibleMoves, move)
+		}
 	}
 
 	return possibleMoves, boards
