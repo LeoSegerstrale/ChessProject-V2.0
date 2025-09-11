@@ -12,8 +12,16 @@ let BCastleAv = [true,true,true]
 let WKingLoc;
 let BKingLoc;
 
+const pieceMap = {
+    "♟": "pawn",
+    "♜": "rook",
+    "♞": "knight",
+    "♝": "bishop",
+    "♛": "queen",
+    "♚": "king"
+};
 
-for (let row = 0; row < 8; row++) { 
+for (let row = 0; row < 8; row++) {
 
     let colourP;
 
@@ -23,57 +31,57 @@ for (let row = 0; row < 8; row++) {
         colourP = "white-piece"
     }
 
-    for (let col = 0; col < 8; col++) { 
+    for (let col = 0; col < 8; col++) {
 
-        
+
         const square = document.createElement("div");
         square.classList.add("square");
-        
 
-        if ((row + col) % 2 === 0) { 
+
+        if ((row + col) % 2 === 0) {
             square.classList.add("light");
-         } else { 
+        } else {
             square.classList.add("dark");
         }
 
         const squareName = `${row}${col}`;
 
-        square.setAttribute("data-square", squareName); 
+        square.setAttribute("data-square", squareName);
 
 
         const piece = document.createElement("span");
         if (row === 1 || row === 6){
 
             piece.innerText = "♟";
-            piece.classList.add(colourP); 
-            square.appendChild(piece); 
+            piece.classList.add(colourP);
+            square.appendChild(piece);
 
         } else if (row === 0 ||  row === 7){
-            
+
             if (col === 0 || col === 7){
                 piece.innerText = "♜";
-                piece.classList.add(colourP); 
+                piece.classList.add(colourP);
                 square.appendChild(piece);
                 rookLocs.push(squareName);
             } else if (col === 1 || col === 6){
 
                 piece.innerText = "♞";
-                piece.classList.add(colourP); 
-                square.appendChild(piece);  
+                piece.classList.add(colourP);
+                square.appendChild(piece);
             } else if (col === 2 || col === 5){
 
                 piece.innerText = "♝";
-                piece.classList.add(colourP); 
-                square.appendChild(piece);  
+                piece.classList.add(colourP);
+                square.appendChild(piece);
             } else if (col === 3){
 
                 piece.innerText = "♛";
-                piece.classList.add(colourP); 
-                square.appendChild(piece);  
+                piece.classList.add(colourP);
+                square.appendChild(piece);
             } else{
 
                 piece.innerText = "♚";
-                piece.classList.add(colourP); 
+                piece.classList.add(colourP);
                 square.appendChild(piece);
                 if (row===7){
                     WKingLoc = `${row}${col}`;
@@ -105,7 +113,7 @@ for (let row = 0; row < 8; row++) {
                 square.classList.add("selected");
 
 
-                const boardState = getBoard();
+                const boardState = getBoard(pieceMap);
                 const fromSquare = selectedSquare.getAttribute("data-square");
 
                 const requestBody = {
@@ -123,26 +131,26 @@ for (let row = 0; row < 8; row++) {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(requestBody)
                 })
-                .then(res => res.json())
-                .then(data => {
-                    clearHighlights();
+                    .then(res => res.json())
+                    .then(data => {
+                        clearHighlights();
 
-                    validMoves = data.validSquares
+                        validMoves = data.validSquares
 
-                    data.validSquares.forEach(coords => {
-                        const squareEl = board.querySelector(`[data-square='${coords}']`);
+                        data.validSquares.forEach(coords => {
+                            const squareEl = board.querySelector(`[data-square='${coords}']`);
 
 
-                        squareEl.classList.add("highlight");
+                            squareEl.classList.add("highlight");
 
-                    });
-                })
-                .catch(err => console.error(err));
+                        });
+                    })
+                    .catch(err => console.error(err));
 
                 return;
             }
 
-            // --- CASE 2: clicked the same piece again to deselect ---
+            // dos
             if (square === selectedSquare) {
                 clearHighlights();
                 selectedSquare.classList.remove("selected");
@@ -151,7 +159,7 @@ for (let row = 0; row < 8; row++) {
                 return; // done
             }
 
-            // --- CASE 3: moving the selected piece to a new square ---
+            // tres
             if (selectedPiece) {
 
                 const fromSquare = selectedSquare.getAttribute("data-square");
@@ -165,10 +173,10 @@ for (let row = 0; row < 8; row++) {
 
 
                     clearHighlights();
-                    // Remove piece from old square
+
                     selectedSquare.removeChild(selectedPiece);
 
-                    // Remove piece in destination if any (capturing)
+
                     if (pieceInSquare) {
                         square.removeChild(pieceInSquare);
                     } else if (enPassant !== "" && pieceSymbol === "♟" && toSquare[1] !== fromSquare[1] && !pieceInSquare){
@@ -181,7 +189,7 @@ for (let row = 0; row < 8; row++) {
 
                     } else if (pieceSymbol === "♚") {
 
-                        if (currColour == "white-piece"){
+                        if (currColour === "white-piece"){
                             WKingLoc = toSquare
                         }else{
                             BKingLoc = toSquare
@@ -240,10 +248,25 @@ for (let row = 0; row < 8; row++) {
                         }
                     }
 
-                    // Append the piece to new square
+                    if (pieceSymbol === "♟"){
+                        let promotionRow;
+
+                        if (currColour === "white-piece"){
+                            promotionRow = "0"
+                        } else{
+                            promotionRow = "7"
+                        }
+                        if (toSquare[0] === promotionRow){
+                            const choice = prompt("What do u wanna promote to, (sleepy leo cant be asked to write a ui for this srry) :")
+                            selectedPiece.innerText = pieceMap[choice.toLowerCase()] || "♛";
+                        }
+
+
+                    }
+
                     square.appendChild(selectedPiece);
 
-                    // Clear selection
+
                     selectedPiece = null;
                     selectedSquare.classList.remove("selected");
                     selectedSquare = null;
@@ -254,6 +277,8 @@ for (let row = 0; row < 8; row++) {
                     }
 
 
+
+
                 }
 
 
@@ -262,7 +287,7 @@ for (let row = 0; row < 8; row++) {
 
         board.appendChild(square);
 
-     }
+    }
 }
 
 
@@ -274,17 +299,10 @@ function clearHighlights() {
 
 
 
-function getBoard() {
+function getBoard(pieceMap) {
     const state = [];
 
-    const pieceMap = {
-        "♟": "pawn",
-        "♜": "rook",
-        "♞": "knight",
-        "♝": "bishop",
-        "♛": "queen",
-        "♚": "king"
-    };
+
 
     for (let row = 0; row < 8; row++) {
 
