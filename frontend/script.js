@@ -159,7 +159,7 @@ for (let row = 0; row < 8; row++) {
                 return; // done
             }
 
-            // tres
+            // tres is the best
             if (selectedPiece) {
 
                 const fromSquare = selectedSquare.getAttribute("data-square");
