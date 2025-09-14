@@ -11,6 +11,7 @@ func main() {
 	fs := http.FileServer(http.Dir("./frontend"))
 	http.Handle("/", fs)
 	http.HandleFunc("/vMoveCheck", api.VMoveCheck)
+	http.HandleFunc("/botMove", api.BotMove)
 
 	log.Println("Iiiiiiits starting http://localhost:8080")
 	err := http.ListenAndServe(":8080", nil)

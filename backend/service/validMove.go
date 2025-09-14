@@ -2,6 +2,7 @@ package service
 
 import (
 	"ChessWeb/backend/model"
+	"math/rand"
 	"strconv"
 )
 
@@ -42,7 +43,7 @@ func GetBotMove(req model.BotMoveReq) ([][]*model.Piece, []string) {
 			}
 		}
 	}
-	return possibleBoards[0], []string{""}
+	return possibleBoards[rand.Intn(len(possibleBoards)-1)], []string{""}
 
 }
 

@@ -3,7 +3,7 @@ const board = document.getElementById("board")
 let selectedPiece = null;
 let selectedSquare = null;
 
-let currColour = "white-piece"
+
 let enPassant;
 let validMoves = [];
 let rookLocs = [];
@@ -11,6 +11,17 @@ let WCastleAv = [true,true,true]
 let BCastleAv = [true,true,true]
 let WKingLoc;
 let BKingLoc;
+let oppColour;
+
+let currColour = prompt("What do u wanna promote to, (sleepy leo cant be asked to write a ui for this srry) :")
+
+if (currColour === "white"){
+    currcolour = "white-piece"
+    oppColour = "black-piece"
+} else{
+    oppColour = "white-piece"
+    currColour = "black-piece"
+}
 
 const pieceMap = {
     "♟": "pawn",
@@ -270,13 +281,26 @@ for (let row = 0; row < 8; row++) {
                     selectedPiece = null;
                     selectedSquare.classList.remove("selected");
                     selectedSquare = null;
+
+                    const boardState = getBoard(pieceMap);
+
                     if (currColour === "white-piece"){
-                        currColour = "black-piece"
-                    } else{
-                        currColour = "white-piece"
+                        currCastleAv = WCastleAv
+                        currKingLoc = WKingLoc
+
+                    } else {
+                        currCastleAv = BCastleAv
+                        currKingLoc = BKingLoc
                     }
 
-
+                    const requestBody = {
+                        board: boardState,
+                        colour: oppColour,
+                        enPassant: enPassant,
+                        CastleStatus: currCastleAv,
+                        rookLocs: rookLocs,
+                        kingLoc: currKingLoc
+                    };
 
 
                 }
