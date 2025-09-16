@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func GetBotMove(req model.BotMoveReq) ([][]*model.Piece, []string) {
+func GetBotMove(req model.BotMoveReq) ([][]*model.Piece, string) {
 
 	ogBoard := req.Board
 	currColour := req.Colour
@@ -43,7 +43,7 @@ func GetBotMove(req model.BotMoveReq) ([][]*model.Piece, []string) {
 			}
 		}
 	}
-	return possibleBoards[rand.Intn(len(possibleBoards)-1)], []string{""}
+	return possibleBoards[rand.Intn(len(possibleBoards)-1)], ""
 
 }
 

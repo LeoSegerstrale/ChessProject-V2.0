@@ -13,10 +13,10 @@ let WKingLoc;
 let BKingLoc;
 let oppColour;
 
-let currColour = prompt("What do u wanna promote to, (sleepy leo cant be asked to write a ui for this srry) :")
+let currColour = prompt("Wanna play as white or black:")
 
 if (currColour === "white"){
-    currcolour = "white-piece"
+    currColour = "white-piece"
     oppColour = "black-piece"
 } else{
     oppColour = "white-piece"
@@ -31,6 +31,9 @@ const pieceMap = {
     "♛": "queen",
     "♚": "king"
 };
+
+
+
 
 for (let row = 0; row < 8; row++) {
 
@@ -301,8 +304,19 @@ for (let row = 0; row < 8; row++) {
                         rookLocs: rookLocs,
                         kingLoc: currKingLoc
                     };
+                    fetch("http://localhost:8080/botMove", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(requestBody)
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            clearHighlights();
+
+                            updateBoard(data.board);
 
 
+                        });
                 }
 
 
@@ -321,7 +335,34 @@ function clearHighlights() {
     });
 }
 
+function updateBoard(updatedBoard){
+    const board = document.getElementById("board")
 
+    const symbolMap = {
+        "pawn": "♟",
+        "rook": "♜",
+        "knight": "♞",
+        "bishop": "♝",
+        "queen": "♛",
+        "king": "♚"
+    };
+
+    for (let row = 0; row < 8; row++){
+        for (let col = 0; col < 8; col++){
+            const squareName = `${row}${col}`;
+            const square = board.querySelector(`[data-square='${squareName}']`);
+            square.innerHTML = ""
+            if (updatedBoard[row][col] != null){
+                const pieceSpan = document.createElement("span");
+                pieceSpan.innerText = symbolMap[updatedBoard[row][col].Piece];
+                pieceSpan.classList.add(updatedBoard[row][col].colour === "white" ? "white-piece" : "black-piece");
+
+                square.appendChild(pieceSpan);
+            }
+        }
+
+    }
+}
 
 function getBoard(pieceMap) {
     const state = [];

@@ -43,7 +43,7 @@ func BotMove(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 	}
 
-	board := [][]*model.Piece{}
+	board, _ := service.GetBotMove(req)
 
 	resp = model.BotMoveResp{
 		Board: board,
