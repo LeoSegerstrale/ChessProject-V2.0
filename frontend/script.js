@@ -288,12 +288,12 @@ for (let row = 0; row < 8; row++) {
                     const boardState = getBoard(pieceMap);
 
                     if (currColour === "white-piece"){
-                        currCastleAv = WCastleAv
-                        currKingLoc = WKingLoc
-
-                    } else {
                         currCastleAv = BCastleAv
                         currKingLoc = BKingLoc
+
+                    } else {
+                        currCastleAv = WCastleAv
+                        currKingLoc = WKingLoc
                     }
 
                     const requestBody = {
@@ -355,7 +355,12 @@ function updateBoard(updatedBoard){
             if (updatedBoard[row][col] != null){
                 const pieceSpan = document.createElement("span");
                 pieceSpan.innerText = symbolMap[updatedBoard[row][col].Piece];
-                pieceSpan.classList.add(updatedBoard[row][col].colour === "white" ? "white-piece" : "black-piece");
+                if (updatedBoard[row][col].Colour == "white"){
+                    pieceSpan.classList.add("white-piece")
+
+                }else{
+                    pieceSpan.classList.add("black-piece")
+                }
 
                 square.appendChild(pieceSpan);
             }

@@ -10,6 +10,12 @@ func GetBotMove(req model.BotMoveReq) ([][]*model.Piece, string) {
 
 	ogBoard := req.Board
 	currColour := req.Colour
+
+	if currColour == "white-piece" {
+		currColour = "white"
+	} else if currColour == "black-piece" {
+		currColour = "black"
+	}
 	var possibleBoards [][][]*model.Piece
 
 	for y, row := range ogBoard {
@@ -43,7 +49,7 @@ func GetBotMove(req model.BotMoveReq) ([][]*model.Piece, string) {
 			}
 		}
 	}
-	return possibleBoards[rand.Intn(len(possibleBoards)-1)], ""
+	return possibleBoards[rand.Intn(len(possibleBoards))], ""
 
 }
 
