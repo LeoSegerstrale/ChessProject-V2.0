@@ -313,10 +313,34 @@ for (let row = 0; row < 8; row++) {
                         .then(data => {
                             clearHighlights();
 
+
+
+
+                            enPassant = data.enPassantReq
+                            currCastleAv = data.castleStatus
+                            currKingLoc = data.kingLoc
+
+
+                            if (currColour === "white-piece"){
+                                BCastleAv = currCastleAv
+                                BKingLoc = currKingLoc
+
+                            } else {
+                                WCastleAv = currCastleAv
+                                WKingLoc = currKingLoc
+                            }
+
+                            console.log("here is the kingloc: ", currKingLoc)
+
+
                             updateBoard(data.board);
 
 
                         });
+
+
+
+
                 }
 
 
@@ -355,7 +379,7 @@ function updateBoard(updatedBoard){
             if (updatedBoard[row][col] != null){
                 const pieceSpan = document.createElement("span");
                 pieceSpan.innerText = symbolMap[updatedBoard[row][col].Piece];
-                if (updatedBoard[row][col].Colour == "white"){
+                if (updatedBoard[row][col].Colour === "white"){
                     pieceSpan.classList.add("white-piece")
 
                 }else{

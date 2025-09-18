@@ -43,10 +43,13 @@ func BotMove(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 	}
 
-	board, _ := service.GetBotMove(req)
+	board, _, req := service.GetBotMove(req)
 
 	resp = model.BotMoveResp{
-		Board: board,
+		Board:        board,
+		EnPassantReq: req.EnPassantReq,
+		CastleStatus: req.CastleStatus,
+		KingLoc:      req.KingLoc,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
