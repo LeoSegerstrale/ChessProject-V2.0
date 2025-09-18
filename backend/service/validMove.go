@@ -78,7 +78,7 @@ func GetBotMove(req model.BotMoveReq) ([][]*model.Piece, string, model.BotMoveRe
 	} else if possiblePieces[optimalBoard] == "pawn" {
 		fromY, _ := strconv.Atoi(string(fromSquares[optimalBoard][0]))
 		toY, _ := strconv.Atoi(string(possibleMoves[optimalBoard][0]))
-		
+
 		if fromY-toY == 2 || toY-fromY == 2 {
 			req.EnPassantReq = possibleMoves[optimalBoard]
 		}
