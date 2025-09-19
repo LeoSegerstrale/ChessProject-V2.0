@@ -46,10 +46,6 @@ func GetBotMove(req model.BotMoveReq) ([][]*model.Piece, string, model.BotMoveRe
 					moves, boards = PawnMover(currLoc, ogBoard, req.EnPassantReq, req.KingLoc, true)
 				}
 
-				if len(boards) != 0 {
-					possiblePieces = append(possiblePieces, square.Piece)
-				}
-
 				for i, board := range boards {
 					possibleBoards = append(possibleBoards, board)
 					possiblePieces = append(possiblePieces, square.Piece)
