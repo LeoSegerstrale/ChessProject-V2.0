@@ -23,8 +23,12 @@ type BotMoveReq struct {
 }
 
 type BotMoveResp struct {
-	Board     [][]*Piece `json:"board"`
-	Checkmate []string   `json:"checkmate"`
+	Board        [][]*Piece `json:"board"`
+	EnPassantReq string     `json:"enPassant"`
+	CastleStatus []bool     `json:"castleStatus"`
+	RookLocs     []string   `json:"rookLocs"`
+	KingLoc      string     `json:"kingLoc"`
+	Checkmate    []string   `json:"checkmate"`
 }
 
 type Piece struct {

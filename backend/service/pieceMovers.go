@@ -409,6 +409,14 @@ func kingVMoveChecker(board [][]*model.Piece, currY int, currX int, colour strin
 		return good
 	}
 
+	pawnMoves, _ := PawnMover(location, board, "", location, false)
+	if kingMoveHelper(board, pawnMoves, colour, "pawn") {
+		good = false
+		board[currY][currX] = prev
+
+		return good
+	}
+
 	board[currY][currX] = prev
 
 	return good

@@ -18,7 +18,7 @@ func TestBishopMover(t *testing.T) {
 		{
 			name:     "Empty board center",
 			location: "34",
-			board:    emptyBoard(ogLoc),
+			board:    EmptyBoard(ogLoc),
 			want:     []string{"23", "12", "01", "43", "52", "61", "70", "25", "16", "07", "45", "56", "67"},
 		},
 		{
@@ -58,7 +58,7 @@ func TestRookMover(t *testing.T) {
 		{
 			name:     "Empty board center",
 			location: "34",
-			board:    emptyBoard(ogLoc),
+			board:    EmptyBoard(ogLoc),
 			want:     []string{"24", "14", "04", "44", "54", "64", "74", "35", "36", "37", "33", "32", "31", "30"},
 		},
 		{
@@ -97,7 +97,7 @@ func TestKnightMover(t *testing.T) {
 		{
 			name:     "Empty board center",
 			location: "34",
-			board:    emptyBoard(ogLoc),
+			board:    EmptyBoard(ogLoc),
 			want:     []string{"55", "53", "46", "42", "15", "13", "26", "22"},
 		},
 		{
@@ -147,7 +147,7 @@ func TestKingMover(t *testing.T) {
 		{
 			name:       "Empty board center",
 			location:   "34",
-			board:      emptyBoard(ogLoc),
+			board:      EmptyBoard(ogLoc),
 			want:       []string{"23", "43", "25", "45", "24", "44", "35", "33"},
 			castleStat: []bool{false, false, false},
 			rookLocs:   []string{},
@@ -170,7 +170,7 @@ func TestKingMover(t *testing.T) {
 		}, {
 			name:       "Castling works",
 			location:   "74",
-			board:      emptyBoard(casLoc),
+			board:      EmptyBoard(casLoc),
 			want:       []string{"63", "65", "64", "75", "73", "72", "76"},
 			castleStat: []bool{true, true, true},
 			rookLocs:   []string{"70", "77"},
@@ -178,7 +178,7 @@ func TestKingMover(t *testing.T) {
 		{
 			name:       "If Castling unavailable it does not say it is",
 			location:   "74",
-			board:      emptyBoard(casLoc),
+			board:      EmptyBoard(casLoc),
 			want:       []string{"63", "65", "64", "75", "73"},
 			castleStat: []bool{false, true, false},
 			rookLocs:   []string{"70", "77"},
@@ -186,7 +186,7 @@ func TestKingMover(t *testing.T) {
 		{
 			name:       "If Castling unavailable in one direction, it can only castle in one direction",
 			location:   "74",
-			board:      emptyBoard(casLoc),
+			board:      EmptyBoard(casLoc),
 			want:       []string{"63", "65", "64", "75", "73", "72"},
 			castleStat: []bool{true, true, false},
 			rookLocs:   []string{"70", "77"},
@@ -214,7 +214,7 @@ func TestKingMoverHelpers(t *testing.T) {
 	}{
 		{
 			name:   "Empty board center",
-			board:  emptyBoard([]int{7, 5}),
+			board:  EmptyBoard([]int{7, 5}),
 			currY:  7,
 			currX:  5,
 			want:   true,
@@ -254,7 +254,7 @@ func TestPawnMover(t *testing.T) {
 		{
 			name:      "pawn in second rank can jump two or one square",
 			location:  "60",
-			board:     emptyBoard(ogLoc),
+			board:     EmptyBoard(ogLoc),
 			want:      []string{"50", "40"},
 			enPassant: "",
 		},
@@ -315,7 +315,7 @@ func TestValidBoard(t *testing.T) {
 		},
 		{
 			name:       "empty board, no validation",
-			board:      emptyBoard([]int{4, 3}),
+			board:      EmptyBoard([]int{4, 3}),
 			fromSquare: []int{4, 3},
 			wantList:   []string{"33"},
 			ToSquares:  []string{"33"},
@@ -360,13 +360,13 @@ func TestValidBoard(t *testing.T) {
 
 //HELPER FUNCTIONS
 
-func emptyBoard(pPos []int) [][]*model.Piece {
+func EmptyBoard(pPos []int) [][]*model.Piece {
 	board := make([][]*model.Piece, 8)
 	for i := range board {
 		board[i] = make([]*model.Piece, 8)
 	}
 	board[pPos[0]][pPos[1]] = &model.Piece{
-		Piece:  "",
+		Piece:  "bishop",
 		Colour: "white",
 	}
 	return board
