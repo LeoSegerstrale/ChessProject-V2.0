@@ -3,7 +3,7 @@ const board = document.getElementById("board")
 let selectedPiece = null;
 let selectedSquare = null;
 
-let currColour = "white-piece"
+
 let enPassant;
 let validMoves = [];
 let rookLocs = [];
@@ -11,6 +11,18 @@ let WCastleAv = [true,true,true]
 let BCastleAv = [true,true,true]
 let WKingLoc;
 let BKingLoc;
+let oppColour;
+let startCheck = true;
+
+let currColour = prompt("Wanna play as white or black:")
+
+if (currColour === "white"){
+    currColour = "white-piece"
+    oppColour = "black-piece"
+} else{
+    oppColour = "white-piece"
+    currColour = "black-piece"
+}
 
 const pieceMap = {
     "♟": "pawn",
@@ -20,6 +32,9 @@ const pieceMap = {
     "♛": "queen",
     "♚": "king"
 };
+
+
+
 
 for (let row = 0; row < 8; row++) {
 
@@ -270,11 +285,59 @@ for (let row = 0; row < 8; row++) {
                     selectedPiece = null;
                     selectedSquare.classList.remove("selected");
                     selectedSquare = null;
+
+                    const boardState = getBoard(pieceMap);
+
                     if (currColour === "white-piece"){
-                        currColour = "black-piece"
-                    } else{
-                        currColour = "white-piece"
+                        currCastleAv = BCastleAv
+                        currKingLoc = BKingLoc
+
+                    } else {
+                        currCastleAv = WCastleAv
+                        currKingLoc = WKingLoc
                     }
+
+                    const requestBody = {
+                        board: boardState,
+                        colour: oppColour,
+                        enPassant: enPassant,
+                        CastleStatus: currCastleAv,
+                        rookLocs: rookLocs,
+                        kingLoc: currKingLoc
+                    };
+                    fetch("http://localhost:8080/botMove", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(requestBody)
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            clearHighlights();
+
+
+
+
+                            enPassant = data.enPassantReq
+                            currCastleAv = data.castleStatus
+                            currKingLoc = data.kingLoc
+
+
+                            if (currColour === "white-piece"){
+                                BCastleAv = currCastleAv
+                                BKingLoc = currKingLoc
+
+                            } else {
+                                WCastleAv = currCastleAv
+                                WKingLoc = currKingLoc
+                            }
+
+                            console.log("here is the kingloc: ", currKingLoc)
+
+
+                            updateBoard(data.board);
+
+
+                        });
 
 
 
@@ -291,13 +354,70 @@ for (let row = 0; row < 8; row++) {
 }
 
 
+if (startCheck && currColour === "black-piece"){
+    console.log(currColour)
+    const requestBody = {
+        board: getBoard(pieceMap),
+        colour: oppColour,
+        CastleStatus: BCastleAv,
+        kingLoc: "74",
+        rookLocs: ["70","77"],
+    };
+    fetch("http://localhost:8080/botMove", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody)
+    })
+        .then(res => res.json())
+        .then(data => {
+            clearHighlights();
+
+            updateBoard(data.board);
+            currColour = "black-piece"
+
+            startCheck = false
+        });
+}
+
 function clearHighlights() {
     document.querySelectorAll(".highlight").forEach(square => {
         square.classList.remove("highlight");
     });
 }
 
+function updateBoard(updatedBoard){
+    const board = document.getElementById("board")
 
+    const symbolMap = {
+        "pawn": "♟",
+        "rook": "♜",
+        "knight": "♞",
+        "bishop": "♝",
+        "queen": "♛",
+        "king": "♚"
+    };
+
+    for (let row = 0; row < 8; row++){
+        for (let col = 0; col < 8; col++){
+            const squareName = `${row}${col}`;
+            const square = board.querySelector(`[data-square='${squareName}']`);
+            square.innerHTML = ""
+            if (updatedBoard[row][col] != null){
+                const pieceSpan = document.createElement("span");
+                pieceSpan.innerText = symbolMap[updatedBoard[row][col].Piece];
+                if (updatedBoard[row][col].Colour === "white"){
+                    pieceSpan.classList.add("white-piece")
+
+                }else{
+                    pieceSpan.classList.add("black-piece")
+                }
+
+                square.appendChild(pieceSpan);
+            }
+        }
+
+    }
+}
 
 function getBoard(pieceMap) {
     const state = [];

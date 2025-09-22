@@ -2,14 +2,25 @@ package service
 
 import (
 	"ChessWeb/backend/model"
+	"math/rand"
 	"strconv"
 )
 
-func GetBotMove(req model.BotMoveReq) ([][]*model.Piece, []string) {
+func GetBotMove(req model.BotMoveReq) ([][]*model.Piece, string, model.BotMoveReq) {
 
 	ogBoard := req.Board
 	currColour := req.Colour
+
+	if currColour == "white-piece" {
+		currColour = "white"
+	} else if currColour == "black-piece" {
+		currColour = "black"
+	}
 	var possibleBoards [][][]*model.Piece
+	var possiblePieces []string
+	var moves []string
+	var possibleMoves []string
+	var fromSquares []string
 
 	for y, row := range ogBoard {
 		for x, square := range row {
@@ -21,28 +32,55 @@ func GetBotMove(req model.BotMoveReq) ([][]*model.Piece, []string) {
 				var boards [][][]*model.Piece
 
 				if square.Piece == "bishop" {
-					_, boards = BishopMover(currLoc, ogBoard, req.KingLoc, true)
+					moves, boards = BishopMover(currLoc, ogBoard, req.KingLoc, true)
 
 				} else if square.Piece == "rook" {
-					_, boards = RookMover(currLoc, ogBoard, req.KingLoc, true)
+					moves, boards = RookMover(currLoc, ogBoard, req.KingLoc, true)
 				} else if square.Piece == "queen" {
-					_, boards = QueenMover(currLoc, ogBoard, req.KingLoc, true)
+					moves, boards = QueenMover(currLoc, ogBoard, req.KingLoc, true)
 				} else if square.Piece == "knight" {
-					_, boards = KnightMover(currLoc, ogBoard, req.KingLoc, true)
+					moves, boards = KnightMover(currLoc, ogBoard, req.KingLoc, true)
 				} else if square.Piece == "king" {
-					_, boards = KingMover(currLoc, ogBoard, req.CastleStatus, req.RookLocs, true)
+					moves, boards = KingMover(currLoc, ogBoard, req.CastleStatus, req.RookLocs, true)
 				} else if square.Piece == "pawn" {
-					_, boards = PawnMover(currLoc, ogBoard, req.EnPassantReq, req.KingLoc, true)
+					moves, boards = PawnMover(currLoc, ogBoard, req.EnPassantReq, req.KingLoc, true)
 				}
 
-				for _, board := range boards {
+				for i, board := range boards {
 					possibleBoards = append(possibleBoards, board)
+					possiblePieces = append(possiblePieces, square.Piece)
+					possibleMoves = append(possibleMoves, moves[i])
+					fromSquares = append(fromSquares, strconv.Itoa(y)+strconv.Itoa(x))
 				}
-
 			}
+
 		}
 	}
-	return possibleBoards[0], []string{""}
+
+	optimalBoard := rand.Intn(len(possibleBoards))
+
+	bestBoard := possibleBoards[optimalBoard]
+
+	if possiblePieces[optimalBoard] == "king" {
+		req.KingLoc = possibleMoves[optimalBoard]
+		req.CastleStatus[1] = false
+	} else if possiblePieces[optimalBoard] == "rook" {
+
+		if fromSquares[optimalBoard] == req.RookLocs[0] {
+			req.CastleStatus[0] = false
+		} else if fromSquares[optimalBoard] == req.RookLocs[1] {
+			req.CastleStatus[2] = false
+		}
+	} else if possiblePieces[optimalBoard] == "pawn" {
+		fromY, _ := strconv.Atoi(string(fromSquares[optimalBoard][0]))
+		toY, _ := strconv.Atoi(string(possibleMoves[optimalBoard][0]))
+
+		if fromY-toY == 2 || toY-fromY == 2 {
+			req.EnPassantReq = possibleMoves[optimalBoard]
+		}
+	}
+
+	return bestBoard, "", req
 
 }
 
