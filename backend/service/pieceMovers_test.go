@@ -252,6 +252,21 @@ func TestPawnMover(t *testing.T) {
 		kingLoc   string
 	}{
 		{
+			name:     "promotion test",
+			location: "14",
+			board:    boardWithPromotion(),
+			want:     []string{"04", "04", "04", "04"},
+			kingLoc:  "74",
+		},
+		{
+			name:      "En Passant test baby",
+			location:  "34",
+			board:     boardWithEnPassant(),
+			want:      []string{"23"},
+			enPassant: "33",
+			kingLoc:   "74",
+		},
+		{
 			name:      "pawn in second rank can jump two or one square",
 			location:  "60",
 			board:     EmptyBoard(ogLoc),
@@ -271,13 +286,6 @@ func TestPawnMover(t *testing.T) {
 			board:     boardWithFBlockers(),
 			want:      []string{},
 			enPassant: "",
-		},
-		{
-			name:      "En Passant test baby",
-			location:  "34",
-			board:     boardWithEnPassant(),
-			want:      []string{"23"},
-			enPassant: "33",
 		},
 	}
 	for _, tt := range tests {
@@ -447,11 +455,11 @@ func boardWithFBlockers() [][]*model.Piece {
 func boardWithEnPassant() [][]*model.Piece {
 
 	oppPiece := &model.Piece{
-		Piece:  "",
+		Piece:  "pawn",
 		Colour: "black",
 	}
 	samePiece := &model.Piece{
-		Piece:  "",
+		Piece:  "pawn",
 		Colour: "white",
 	}
 
@@ -509,6 +517,22 @@ func boardWithPinnedPieceV2() [][]*model.Piece {
 		Colour: "black",
 	}
 	board[6][3] = &model.Piece{
+		Piece:  "pawn",
+		Colour: "white",
+	}
+	board[7][4] = &model.Piece{
+		Piece:  "king",
+		Colour: "white",
+	}
+	return board
+}
+
+func boardWithPromotion() [][]*model.Piece {
+	board := make([][]*model.Piece, 8)
+	for i := range board {
+		board[i] = make([]*model.Piece, 8)
+	}
+	board[1][4] = &model.Piece{
 		Piece:  "pawn",
 		Colour: "white",
 	}

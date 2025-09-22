@@ -12,6 +12,7 @@ let BCastleAv = [true,true,true]
 let WKingLoc;
 let BKingLoc;
 let oppColour;
+let startCheck = true;
 
 let currColour = prompt("Wanna play as white or black:")
 
@@ -352,6 +353,31 @@ for (let row = 0; row < 8; row++) {
     }
 }
 
+
+if (startCheck && currColour === "black-piece"){
+    console.log(currColour)
+    const requestBody = {
+        board: getBoard(pieceMap),
+        colour: oppColour,
+        CastleStatus: BCastleAv,
+        kingLoc: "74",
+        rookLocs: ["70","77"],
+    };
+    fetch("http://localhost:8080/botMove", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody)
+    })
+        .then(res => res.json())
+        .then(data => {
+            clearHighlights();
+
+            updateBoard(data.board);
+            currColour = "black-piece"
+
+            startCheck = false
+        });
+}
 
 function clearHighlights() {
     document.querySelectorAll(".highlight").forEach(square => {

@@ -439,9 +439,12 @@ func validMovesAndBoard(board [][]*model.Piece, fromSquare []int, moves []string
 
 	var kingLocX int
 	var kingLocY int
+	var oppColour string
 	if kingLoc == "" { // for testing
 		return moves, [][][]*model.Piece{}
 	}
+
+	possiblePromotions := []string{"queen", "rook", "bishop", "knight"}
 
 	if kingLoc != "!" {
 		kingLocX, _ = strconv.Atoi(string(kingLoc[1]))
@@ -451,10 +454,20 @@ func validMovesAndBoard(board [][]*model.Piece, fromSquare []int, moves []string
 
 	colour := board[fromSquare[0]][fromSquare[1]].Colour
 
+	if colour == "white" {
+		oppColour = "black"
+	} else {
+		oppColour = "white"
+	}
+
 	checkedMoves := []string{}
 	listOBoards := [][][]*model.Piece{}
+	var captured *model.Piece
 
 	for _, move := range moves {
+		enPassTrue := false
+		promotion := false
+		var enPassYSquare int
 		if kingLoc == "!" {
 			kingLocX, _ = strconv.Atoi(string(move[1]))
 			kingLocY, _ = strconv.Atoi(string(move[0]))
@@ -462,15 +475,65 @@ func validMovesAndBoard(board [][]*model.Piece, fromSquare []int, moves []string
 		moveX, _ := strconv.Atoi(string(move[1]))
 		moveY, _ := strconv.Atoi(string(move[0]))
 
-		captured := board[moveY][moveX]
-		board[fromSquare[0]][fromSquare[1]] = nil
-		board[moveY][moveX] = piece
-		if kingVMoveChecker(board, kingLocY, kingLocX, colour) {
-			checkedMoves = append(checkedMoves, move)
-			listOBoards = append(listOBoards, cloneBoard(board))
+		if piece.Piece == "pawn" {
+			if moveX != fromSquare[1] && board[moveY][moveX] == nil {
+
+				if colour == "white" {
+					enPassYSquare = moveY + 1
+				} else {
+					enPassYSquare = moveY - 1
+				}
+				board[enPassYSquare][moveX] = nil
+				board[fromSquare[0]][fromSquare[1]] = nil
+				board[moveY][moveX] = piece
+				enPassTrue = true
+			} else if (colour == "white" && moveY == 0) || (moveY == 7 && colour == "black") {
+
+				captured = board[moveY][moveX]
+				board[fromSquare[0]][fromSquare[1]] = nil
+				board[moveY][moveX] = piece
+
+				if kingVMoveChecker(board, kingLocY, kingLocX, colour) {
+					for _, piecePromotion := range possiblePromotions {
+						board[moveY][moveX] = &model.Piece{
+							Piece:  piecePromotion,
+							Colour: colour,
+						}
+						checkedMoves = append(checkedMoves, move)
+						listOBoards = append(listOBoards, cloneBoard(board))
+						promotion = true
+
+					}
+				}
+				board[fromSquare[0]][fromSquare[1]] = piece
+				board[moveY][moveX] = captured
+
+			} else {
+
+				captured = board[moveY][moveX]
+				board[fromSquare[0]][fromSquare[1]] = nil
+				board[moveY][moveX] = piece
+			}
+		} else {
+
+			captured = board[moveY][moveX]
+			board[fromSquare[0]][fromSquare[1]] = nil
+			board[moveY][moveX] = piece
 		}
-		board[fromSquare[0]][fromSquare[1]] = piece
-		board[moveY][moveX] = captured
+		if !promotion {
+			if kingVMoveChecker(board, kingLocY, kingLocX, colour) {
+				checkedMoves = append(checkedMoves, move)
+				listOBoards = append(listOBoards, cloneBoard(board))
+			}
+			board[fromSquare[0]][fromSquare[1]] = piece
+			board[moveY][moveX] = captured
+			if enPassTrue {
+				board[enPassYSquare][moveX] = &model.Piece{
+					Piece:  "pawn",
+					Colour: oppColour,
+				}
+			}
+		}
 
 	}
 	return checkedMoves, listOBoards
