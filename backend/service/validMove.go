@@ -2,7 +2,6 @@ package service
 
 import (
 	"ChessWeb/backend/model"
-	"math/rand"
 	"strconv"
 )
 
@@ -57,7 +56,7 @@ func GetBotMove(req model.BotMoveReq) ([][]*model.Piece, string, model.BotMoveRe
 		}
 	}
 
-	optimalBoard := rand.Intn(len(possibleBoards))
+	optimalBoard := evaluateBoards(possibleBoards, currColour)
 
 	bestBoard := possibleBoards[optimalBoard]
 

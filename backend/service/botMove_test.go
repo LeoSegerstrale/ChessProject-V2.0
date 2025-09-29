@@ -35,3 +35,29 @@ func TestBotMove(t *testing.T) {
 	}
 
 }
+
+func TestMaterialCounter(t *testing.T) {
+	tests := []struct {
+		name   string
+		colour string
+		board  [][]*model.Piece
+		want   int
+	}{
+		{
+			name:   "testMaterial",
+			colour: "white",
+			board:  boardWithPromotion(),
+			want:   1,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := evaluateMaterial(tt.board, tt.colour)
+			if got != tt.want {
+				t.Errorf("Got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+
+}
